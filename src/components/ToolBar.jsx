@@ -47,7 +47,7 @@ const {neighborhood}=useContext(DataContext);
           {/**
           Control por grupo de alarmas
            */}
-          <div style={{backgroundColor:"rgba(255,255,255,0.2)", display:"flex"}}>
+          <div className = "lblAlarmas" >
           <div style={{display:"flex", alignItems:"center", paddingLeft:2}}>
             <label style={{fontSize:"0.7rem", color:"white"}}>Grupos</label>
           </div>
@@ -103,7 +103,7 @@ const {neighborhood}=useContext(DataContext);
           </Tooltip>
         </Col>
          {/**
-      Columna con los botones para la lista de ;as alarmas
+      Columna con los botones para la lista de las alarmas
        */}
         <Col lg={5} md={5} sm={5} xs={5} className="text-white lblAlarmas">
           <Tooltip title="Ver todas las estaciones">

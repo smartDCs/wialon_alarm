@@ -8,9 +8,7 @@ justify-content: space-between !important;
     margin: 0 !important;
     padding: 0 !important;
     }
-    .tableHead{
-        background-color: rgb(243, 212, 129) !important;
-    }
+    
     .buttonAlarm{
       color: white;
             width: 48px;
@@ -112,4 +110,20 @@ justify-content: space-between !important;
        }
        .divLogo{
         background: linear-gradient(to right,  rgba(220, 0, 0, 0.2),rgba(255, 0, 0, 0.8), rgba(220, 0, 0, 0.2));
+       }
+
+       .tableHead{
+        position:sticky;
+        top: 0;
+        font-size: 11pt;
+        z-index: 1;
+       }
+       .tableHeader{
+        color:rgb(238,235,235) !important;
+        background-color: rgb(50,50,50) !important;
+       }
+       .nombreBarrio{
+column-span: 4;
+text-align: center;
+
        }

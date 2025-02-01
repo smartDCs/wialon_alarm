@@ -11,7 +11,7 @@ import { NavLink } from 'react-router-dom';
 import SettingsIcon from '@mui/icons-material/Settings';
 import logo_sos from "../assets/images/sos.png";
 import logo from "../assets/images/logo3.png"
-
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
 function NavBar() {
   const [userName,setUserName]= useState("Usuario adm")
   return (
@@ -53,6 +53,10 @@ function NavBar() {
             </NavDropdown.Item>
             
             <NavDropdown.Divider />
+            <NavDropdown.Item href="/profile">
+            <AccountBoxIcon/>
+              Perfil
+            </NavDropdown.Item>
             <NavDropdown.Item href="/settings">
             <SettingsIcon/>
               Configuración

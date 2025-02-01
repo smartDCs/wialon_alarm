@@ -120,7 +120,7 @@ function Home() {
             style={{ maxHeight: "71vh", padding: 10, overflowY: "auto" }}
             bg="light"
           >
-            <Card.Title>{neighborhood.name}</Card.Title>
+         
             <Container fluid>
               {/* crea una matriz con cards
             <Row style={{overflowY:"auto",  maxHeight: "80vh"}}>
@@ -138,13 +138,16 @@ function Home() {
               ))}
             </Row>
             */}
-              <Table responsive striped>
-                <thead>
-                  <tr>
-                    <th className="tableHead">#</th>
-                    <th className="tableHead">Fecha</th>
-                    <th className="tableHead">Hora</th>
-                    <th className="tableHead">Activado por</th>
+              <Table striped hover size="sm">
+            
+                <thead className="tableHead" >
+                <tr ><td colSpan={4} className="tableHeader" style={{border:"none", textAlign:"center"}}>{neighborhood.name}</td></tr>
+               
+                   <tr>
+                    <th className="tableHeader">#</th>
+                    <th className="tableHeader">Fecha</th>
+                    <th className="tableHeader">Hora</th>
+                    <th className="tableHeader">Activado por</th>
                   </tr>
                 </thead>
                 <tbody>
