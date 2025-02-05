@@ -17,8 +17,15 @@ import "leaflet/dist/leaflet.css";
 import ToolBar from "../components/ToolBar";
 import DownloadIcon from "@mui/icons-material/Download";
 import { DataContext } from "../context/DataContext";
+import alcaldia from "../assets/images/alcaldiah1.png"
+import { UserContext } from "../context/UserContext";
 function Home() {
 
+/**
+ * obtenemos los datos del inicio de sesion
+ */
+const {userData}=useContext(UserContext);
+console.log(userData);
   const position = [-0.933712, -78.614649];
  
   const [filterDate, setFilterDate] = useState("");
@@ -119,26 +126,16 @@ function Home() {
           <Card
             style={{ maxHeight: "71vh", padding: 10, overflowY: "auto" }}
             bg="light"
+            hidden={neighborhood.name === ""} 
           >
          
-            <Container fluid>
-              {/* crea una matriz con cards
-            <Row style={{overflowY:"auto",  maxHeight: "80vh"}}>
-              {alarmas.map((alarm, index) => (
-                <Col key={index} lg={3} md={3} sm={4} xs={12} className="p-2">
-                  <Card style={{ width: "10rem" }}>
-                    <Card.Img variant="top" src={logo} width={64} height={64}/>
-                    <Card.Body>
-                      <Card.Title>{alarm}</Card.Title>
-                     
-                      <Button variant="primary">Mostrar</Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-            */}
-              <Table striped hover size="sm">
+            <Container fluid
+             
+            >
+            
+              <Table striped hover size="sm"
+             
+              >
             
                 <thead className="tableHead" >
                 <tr ><td colSpan={4} className="tableHeader" style={{border:"none", textAlign:"center"}}>{neighborhood.name}</td></tr>
@@ -163,7 +160,9 @@ function Home() {
               </Table>
             </Container>
           </Card>
-          <Card bg="light" style={{ padding: 10 }}>
+          <Card bg="light" style={{ padding: 10 }}
+         hidden={neighborhood.name === ""} 
+          >
             <Row>
               <Col lg={6} md={3} sm={6} xs={6}>
                 <Form.Group className="mb-3" controlId="filterDate">
@@ -185,6 +184,20 @@ function Home() {
               </Col>
             </Row>
           </Card>
+{
+  /**
+   * muestra el logotipo en lugar de la tabla con los reportes de eventos, cuando no se a seleccionado ninguna estación de alarma
+   */
+}
+<Container fluid
+ hidden={neighborhood.name != ""}
+ className="d-flex justify-content-center align-items-center align-content-center"
+ style={{height:"80vh"}} 
+>
+<img src={alcaldia} width="100%"/>
+</Container>
+
+
         </Col>
       </Row>
     </Container>

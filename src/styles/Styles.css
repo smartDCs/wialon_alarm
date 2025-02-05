@@ -122,8 +122,4 @@ justify-content: space-between !important;
         color:rgb(238,235,235) !important;
         background-color: rgb(50,50,50) !important;
        }
-       .nombreBarrio{
-column-span: 4;
-text-align: center;
-
-       }
+    

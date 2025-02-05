@@ -3,7 +3,7 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import PersonIcon from '@mui/icons-material/Person';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import '../styles/Styles.css';
 import LoginIcon from '@mui/icons-material/Login';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -12,8 +12,14 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import logo_sos from "../assets/images/sos.png";
 import logo from "../assets/images/logo3.png"
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import { UserContext } from '../context/UserContext';
 function NavBar() {
-  const [userName,setUserName]= useState("Usuario adm")
+  /**
+   * Obtenemos los datos de inicio de sesion
+   */
+
+  const {userData}=useContext(UserContext);
+  
   return (
     <Navbar expand="lg"  bg='dark' data-bs-theme="dark" 
     className="bg-body-tertiary "
@@ -41,7 +47,7 @@ function NavBar() {
           <NavDropdown title={
           <span style={{color:"white"}}>
             <PersonIcon />
-            {userName}
+            {userData.user}
           </span>
         } 
          id="basic-nav-dropdown">
