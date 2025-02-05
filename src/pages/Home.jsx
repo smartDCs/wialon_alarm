@@ -25,7 +25,7 @@ function Home() {
  * obtenemos los datos del inicio de sesion
  */
 const {userData}=useContext(UserContext);
-console.log(userData);
+
   const position = [-0.933712, -78.614649];
  
   const [filterDate, setFilterDate] = useState("");
