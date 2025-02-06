@@ -31,14 +31,14 @@ function NavBar() {
    
 
     if (!currUser || !userData.wialonUser) {
-      console.log("Please login first");
+      
       navigate("/");
     } else {
       wialon.core.Session.getInstance().logout(function (code) {
         if (code) {
           console.log(wialon.core.Errors.getErrorText(code));
         } else {
-          console.log("Logout successfully");
+        
           userChange({
             user: "",
             userUid: "",
@@ -104,7 +104,9 @@ function NavBar() {
               flip="true"
               align="end"
             >
-              <NavDropdown.Item href="/">
+              <NavDropdown.Item href="/"
+              disabled={nameUser!=""? true:false}
+              >
                 Login <LoginIcon />
               </NavDropdown.Item>
               <NavDropdown.Item onClick={cerrarSesion}>

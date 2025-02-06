@@ -1,15 +1,13 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Col, Container, Form, Row, Table } from "react-bootstrap";
 import "../styles/Styles.css";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
 
 import {
- 
   LayersControl,
   MapContainer,
   Marker,
- 
   TileLayer,
   Tooltip,
 } from "react-leaflet";
@@ -17,17 +15,147 @@ import "leaflet/dist/leaflet.css";
 import ToolBar from "../components/ToolBar";
 import DownloadIcon from "@mui/icons-material/Download";
 import { DataContext } from "../context/DataContext";
-import alcaldia from "../assets/images/alcaldiah1.png"
+import alcaldia from "../assets/images/alcaldiah1.png";
 import { UserContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 function Home() {
+  const navigate = useNavigate();
 
-/**
- * obtenemos los datos del inicio de sesion
- */
-const {userData}=useContext(UserContext);
+  /**
+   * obtenemos los datos del inicio de sesion
+   */
+  const { userData } = useContext(UserContext);
+  const [sess, setSess] = useState("");
+  /**
+   * variables para usar con la api de wialon
+   *  */
+
+  const [subcuentaID, setSubcuentaID] = useState("");
+  /**
+   * Verificamos si el usuario está logueado
+   */
+
+  useEffect(() => {
+    setSess(userData.sesion);
+
+    if (userData.user === "") {
+      navigate("/");
+    }
+    searchStation();
+  }, [userData, sess]);
+
+  /**
+   *
+   * Buscamos las estaciones de alarma
+   */
+
+  const searchStation = async () => {
+    if (!sess || typeof sess.updateDataFlags !== "function") {
+      console.error("sess no está correctamente inicializado.");
+      return;
+    }
+
+    /**
+     * configuramos las banderas para la api
+     */
+    var flags = wialon.item.Item.dataFlag.base;
+    /**
+     * Obtenemos la id de la subcuenta correspondiente a la entidad
+     */
+    /*
+  sess.updateDataFlags(
+    [{
+      type:"type",
+      data:"avl_unit",
+      flags:flags,
+      mode:0
+    }],
+    function (code){
+      
+      if(code){
+        console.log(wialon.core.Errors.getErrorText(code))
+        return;
+      }
+      /**
+       * obtenemos las unidades cargadas
+       */
+    /*
+      var units=sess.getItems("avl_unit");
+      if(!units || !units.length){
+        console.log("no se encontraron dispositivos");
+        return;
+      }
+        */
+    /**
+      * muestra los nombres de todas las unidades encontradas
+      *
+      for(var i=0;i<units.length;i++){
+        var u=units[i];
+        console.log("unidad "+u.getId()+" "+u.getName())
+      }
+*/
+
+    /*
+    }
+  )
+*/
+    /**
+     * Buscamos la id de la subcuenta
+     *
+     */
+
+    sess.searchItems(
+      {
+        itemsType: "user",
+        propName: "sys_name",
+        propValueMask: userData.entidad,
+        sortType: "sys_name",
+      },
+      1,
+      flags,
+      0,
+      0,
+
+      (error, data) => {
+        if (error) {
+          console.log(wialon.core.Errors.getErrorText(error));
+          return;
+        }
+        setSubcuentaID(data.items[0]._id);
+      }
+    );
+  };
+  useEffect(() => {
+    if (subcuentaID) {
+      /**
+       * Buscamos las estaciones asociadas a la subcuenta
+       */
+
+      sess.searchItems(
+        {
+          itemsType: "avl_unit",
+          propName: "sys_user_creator",
+          propValueMask: subcuentaID,
+          sortType: "sys_name",
+        },
+        1,
+        1025,
+        0,
+        0,
+
+        (error, data) => {
+          if (error) {
+            console.log(wialon.core.Errors.getErrorText(error));
+            return;
+          }
+          console.log(data);
+        }
+      );
+    }
+  }, [subcuentaID]);
 
   const position = [-0.933712, -78.614649];
- 
+
   const [filterDate, setFilterDate] = useState("");
   const { neighborhood, setNeighborhood } = useContext(DataContext);
   const [eventos, setAEventos] = useState([
@@ -73,8 +201,6 @@ const {userData}=useContext(UserContext);
               scrollWheelZoom={true}
               style={{ width: "100%", height: "100%" }}
             >
-             
-
               <LayersControl position="topright">
                 <LayersControl.BaseLayer name="Vista de satélite">
                   <TileLayer
@@ -110,7 +236,6 @@ const {userData}=useContext(UserContext);
                 </Marker>
               ))}
             </MapContainer>
-            
           </Row>
           <Row
             style={{ width: "100%", padding: 10 }}
@@ -126,21 +251,22 @@ const {userData}=useContext(UserContext);
           <Card
             style={{ maxHeight: "71vh", padding: 10, overflowY: "auto" }}
             bg="light"
-            hidden={neighborhood.name === ""} 
+            hidden={neighborhood.name === ""}
           >
-         
-            <Container fluid
-             
-            >
-            
-              <Table striped hover size="sm"
-             
-              >
-            
-                <thead className="tableHead" >
-                <tr ><td colSpan={4} className="tableHeader" style={{border:"none", textAlign:"center"}}>{neighborhood.name}</td></tr>
-               
-                   <tr>
+            <Container fluid>
+              <Table striped hover size="sm">
+                <thead className="tableHead">
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="tableHeader"
+                      style={{ border: "none", textAlign: "center" }}
+                    >
+                      {neighborhood.name}
+                    </td>
+                  </tr>
+
+                  <tr>
                     <th className="tableHeader">#</th>
                     <th className="tableHeader">Fecha</th>
                     <th className="tableHeader">Hora</th>
@@ -160,8 +286,10 @@ const {userData}=useContext(UserContext);
               </Table>
             </Container>
           </Card>
-          <Card bg="light" style={{ padding: 10 }}
-         hidden={neighborhood.name === ""} 
+          <Card
+            bg="light"
+            style={{ padding: 10 }}
+            hidden={neighborhood.name === ""}
           >
             <Row>
               <Col lg={6} md={3} sm={6} xs={6}>
@@ -184,20 +312,17 @@ const {userData}=useContext(UserContext);
               </Col>
             </Row>
           </Card>
-{
-  /**
-   * muestra el logotipo en lugar de la tabla con los reportes de eventos, cuando no se a seleccionado ninguna estación de alarma
-   */
-}
-<Container fluid
- hidden={neighborhood.name != ""}
- className="d-flex justify-content-center align-items-center align-content-center"
- style={{height:"80vh"}} 
->
-<img src={alcaldia} width="100%"/>
-</Container>
-
-
+          {/**
+           * muestra el logotipo en lugar de la tabla con los reportes de eventos, cuando no se a seleccionado ninguna estación de alarma
+           */}
+          <Container
+            fluid
+            hidden={neighborhood.name != ""}
+            className="d-flex justify-content-center align-items-center align-content-center"
+            style={{ height: "80vh" }}
+          >
+            <img src={alcaldia} width="100%" />
+          </Container>
         </Col>
       </Row>
     </Container>
