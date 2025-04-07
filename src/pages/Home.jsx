@@ -12,12 +12,13 @@ import {
   Tooltip,
 } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import ToolBar from "../components/ToolBar";
+
 import DownloadIcon from "@mui/icons-material/Download";
 import { DataContext } from "../context/DataContext";
 import alcaldia from "../assets/images/alcaldiah1.png";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
+import ToolBar from "../components/ToolBar";
 function Home() {
   const navigate = useNavigate();
 
@@ -31,6 +32,7 @@ function Home() {
    *  */
 
   const [subcuentaID, setSubcuentaID] = useState("");
+  const [ids,setIds]=useState([]);
   /**
    * Verificamos si el usuario está logueado
    */
@@ -58,47 +60,10 @@ function Home() {
     /**
      * configuramos las banderas para la api
      */
-    var flags = wialon.item.Item.dataFlag.base;
-    /**
-     * Obtenemos la id de la subcuenta correspondiente a la entidad
-     */
-    /*
-  sess.updateDataFlags(
-    [{
-      type:"type",
-      data:"avl_unit",
-      flags:flags,
-      mode:0
-    }],
-    function (code){
-      
-      if(code){
-        console.log(wialon.core.Errors.getErrorText(code))
-        return;
-      }
-      /**
-       * obtenemos las unidades cargadas
-       */
-    /*
-      var units=sess.getItems("avl_unit");
-      if(!units || !units.length){
-        console.log("no se encontraron dispositivos");
-        return;
-      }
-        */
-    /**
-      * muestra los nombres de todas las unidades encontradas
-      *
-      for(var i=0;i<units.length;i++){
-        var u=units[i];
-        console.log("unidad "+u.getId()+" "+u.getName())
-      }
-*/
+    var flags = wialon.item.Item.dataFlag.base | wialon.item.Resource.dataFlag.reports;
+    
 
-    /*
-    }
-  )
-*/
+
     /**
      * Buscamos la id de la subcuenta
      *
@@ -108,7 +73,7 @@ function Home() {
       {
         itemsType: "user",
         propName: "sys_name",
-        propValueMask: userData.entidad,
+        propValueMask:"*" ,//userData.entidad,
         sortType: "sys_name",
       },
       1,
@@ -121,6 +86,10 @@ function Home() {
           console.log(wialon.core.Errors.getErrorText(error));
           return;
         }
+       
+        const ides=(data.items).map(item=>item._id);
+        setIds(ides);
+       
         setSubcuentaID(data.items[0]._id);
       }
     );
@@ -151,8 +120,33 @@ function Home() {
           console.log(data);
         }
       );
+
+      loadMessages();
     }
   }, [subcuentaID]);
+
+  /**
+   * método para obtener los reportes
+   *
+   */
+  const loadMessages = () => {
+    var to = sess.getServerTime(); // tiempo actual
+    var from = to - 3600 * 24; //tiempo actual menos 24 horas
+    var ml = sess.getMessagesLoader();
+    for(var i=0;i<=ids.length;i++){
+
+
+      ml.loadInterval(ids[i], from, to, 0, 0, 100, (code, data) => {
+        if (code) {
+          console.log(wialon.core.Errors.getErrorText(code));
+        } else {
+          console.log("ID "+ids[i]+" "+data.count+ " mensajes encontrados");
+          console.log(data)
+        }
+      });
+    
+    }
+  };
 
   const position = [-0.933712, -78.614649];
 
@@ -193,7 +187,7 @@ function Home() {
   return (
     <Container fluid className="m-0 p-0 ">
       <Row className="m-0 p-0">
-        <Col lg={8} md={8} sm={12} className="m-0 p-0">
+        <Col lg={8} md={12} sm={12} xs={12} className="m-0 p-0">
           <Row style={{ width: "100%", height: "79vh" }} className="ps-4 pt-2">
             <MapContainer
               center={position}
@@ -241,20 +235,21 @@ function Home() {
             style={{ width: "100%", padding: 10 }}
             className="ps-4 pt-2 pe-0"
           >
+         
             <ToolBar />
           </Row>
         </Col>
         {/**
         Columna para mostrar la lista de eventos suscitados
          */}
-        <Col lg={4} md={4} sm={12} className="m-0 pt-2 pb-0">
+        <Col lg={4} md={12} sm={12} xs={12} className="m-0 pt-2 pb-0">
           <Card
             style={{ maxHeight: "71vh", padding: 10, overflowY: "auto" }}
             bg="light"
             hidden={neighborhood.name === ""}
           >
             <Container fluid>
-              <Table striped hover size="sm">
+              <Table size="sm">
                 <thead className="tableHead">
                   <tr>
                     <td
@@ -275,11 +270,13 @@ function Home() {
                 </thead>
                 <tbody>
                   {filteredEventos.map((evento, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>{evento.fecha}</td>
-                      <td>{evento.hora}</td>
-                      <td>{evento.activadoPor}</td>
+                    <tr key={index}
+                
+                 >
+                      <td  className="tableRow">{index + 1}</td>
+                      <td className="tableRow">{evento.fecha}</td>
+                      <td className="tableRow">{evento.hora}</td>
+                      <td className="tableRow">{evento.activadoPor}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -315,14 +312,15 @@ function Home() {
           {/**
            * muestra el logotipo en lugar de la tabla con los reportes de eventos, cuando no se a seleccionado ninguna estación de alarma
            */}
-          <Container
-            fluid
-            hidden={neighborhood.name != ""}
-            className="d-flex justify-content-center align-items-center align-content-center"
-            style={{ height: "80vh" }}
-          >
-            <img src={alcaldia} width="100%" />
-          </Container>
+          {(!neighborhood.name || neighborhood.name === "") && (
+            <Container
+              fluid
+              className="d-flex justify-content-center align-items-center align-content-center"
+              style={{ height: "80vh" }}
+            >
+              <img src={alcaldia} width="100%" />
+            </Container>
+          )}
         </Col>
       </Row>
     </Container>

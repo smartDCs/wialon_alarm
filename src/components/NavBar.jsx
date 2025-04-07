@@ -66,6 +66,16 @@ function NavBar() {
       sticky="top"
     >
       <Container fluid>
+        <div
+        style={{
+          display:"flex",
+          justifyContent:"space-between",
+          width:"100%"
+        }}
+        >
+        <Navbar.Toggle aria-controls="basic-navbar-nav" 
+        className="p-0 m-2"
+        />
         <Navbar.Brand
           href="/home"
           style={{
@@ -87,11 +97,14 @@ function NavBar() {
             </div>
           </span>
           <span>
-            <img src={logo} height={36} />
+            <img src={logo} height={32} />
           </span>
+        
         </Navbar.Brand>
-        <Navbar.Toggle aria-controls="basic-navbar-nav" />
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+       
+        </div>
+      
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end" >
           <Nav className="ms-auto">
             <NavDropdown
               title={
