@@ -33,6 +33,11 @@ function Home() {
 
   const [subcuentaID, setSubcuentaID] = useState("");
   const [ids,setIds]=useState([]);
+
+/**
+ * 
+ */
+const [unidades, setUnidades] = useState([]);
   /**
    * Verificamos si el usuario está logueado
    */
@@ -60,20 +65,20 @@ function Home() {
     /**
      * configuramos las banderas para la api
      */
-    var flags = wialon.item.Item.dataFlag.base | wialon.item.Resource.dataFlag.reports;
+    var flags = wialon.item.Item.dataFlag.base | wialon.item.Resource.dataFlag.reports |wialon.item.Unit.dataFlag.lastMessage;
     
 
 
     /**
-     * Buscamos la id de la subcuenta
+     * Buscamos los grupos creados por el usuario 
      *
      */
 
     sess.searchItems(
       {
-        itemsType: "user",
-        propName: "sys_name",
-        propValueMask:"*" ,//userData.entidad,
+        itemsType: "avl_unit_group",
+        propName: "rel_user_creator_name",
+        propValueMask:"XAVIER" ,//filtramos por el nombre del usuario que queremos encontrar
         sortType: "sys_name",
       },
       1,
@@ -86,44 +91,60 @@ function Home() {
           console.log(wialon.core.Errors.getErrorText(error));
           return;
         }
-       
-        const ides=(data.items).map(item=>item._id);
-        setIds(ides);
-       
-        setSubcuentaID(data.items[0]._id);
+
+
+
+console.log("grupo encontrado", data.items[0].$$user_name
+,"equipos encontrados",data.items[0].getUnits());
+
+const grupo=data.items[0];
+const unitsId=grupo.getUnits();
+const tempUnidades = [];
+
+unitsId.forEach((unidadId) => {
+  sess.searchItems(
+    {
+      itemsType: "avl_unit",
+      propName: "sys_id",
+      propValueMask:unidadId ,//filtramos por el id de la unidad
+      sortType: "sys_name",
+    },
+    1,
+    flags,
+    0,
+    0,
+    (error, resultado) => {
+      if (error) {
+        console.log(wialon.core.Errors.getErrorText(error));
+        return;
       }
+
+      const unidad = resultado.items[0];
+
+      tempUnidades.push({
+        nombre: unidad.getName(),
+        id: unidad.getId(),
+        posicion: unidad.getPosition(),
+      });
+
+      // Solo actualizamos el estado una vez tengamos todas
+      if (tempUnidades.length === unitsId.length) {
+        setUnidades(tempUnidades);
+      }
+
+      
+  
+    }
+  );
+});
+
+
+   }
     );
   };
   useEffect(() => {
-    if (subcuentaID) {
-      /**
-       * Buscamos las estaciones asociadas a la subcuenta
-       */
-
-      sess.searchItems(
-        {
-          itemsType: "avl_unit",
-          propName: "sys_user_creator",
-          propValueMask: subcuentaID,
-          sortType: "sys_name",
-        },
-        1,
-        1025,
-        0,
-        0,
-
-        (error, data) => {
-          if (error) {
-            console.log(wialon.core.Errors.getErrorText(error));
-            return;
-          }
-          console.log(data);
-        }
-      );
-
-      loadMessages();
-    }
-  }, [subcuentaID]);
+ console.log("unidades", unidades);
+  }, [unidades]);
 
   /**
    * método para obtener los reportes
