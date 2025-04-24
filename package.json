@@ -17,6 +17,7 @@
     "@react-leaflet/core": "^3.0.0",
     "bootstrap": "^5.3.3",
     "firebase": "^11.2.0",
+    "jspdf": "^3.0.1",
     "leaflet": "^1.9.4",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.7",

@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom'
 import './App.css'
 import NavBar from './components/NavBar'
 import Rutes from './routes/Rutes'
-import { Container } from 'react-bootstrap'
+
 import DataState from './context/DataState'
 import { initializeApp } from 'firebase/app'
 import { firebaseConfig } from './firebase/FirebaseConfig'

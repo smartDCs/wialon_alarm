@@ -9,36 +9,50 @@ import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { NavLink, useNavigate } from "react-router-dom";
 import SettingsIcon from "@mui/icons-material/Settings";
-import logo_sos from "../assets/images/sos.png";
+import { signOut } from "firebase/auth";
 import logo from "../assets/images/logo3.png";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import { UserContext } from "../context/UserContext";
+
 function NavBar() {
   const navigate = useNavigate();
   /**
    * Obtenemos los datos de inicio de sesion
    */
 
-  const { userData, userChange } = useContext(UserContext);
+  const { userData, userChange, auth, setUserData } = useContext(UserContext);
   const [nameUser, setNameUser] = useState("");
   const [currUser, setCurrUser] = useState("");
   useEffect(() => {
     setNameUser(userData.user);
     setCurrUser(wialon.core.Session.getInstance().getCurrUser());
+   
   }, [userData]);
+
+
+
+ 
+
+
+  const cerrarFB =  () => {
+   
+    signOut(auth).then(() => {
+     
+      navigate("/");
+    }).catch((error) => {
+    console.log(error)
+    });
+  };
 
   const cerrarSesion = () => {
    
-
-    if (!currUser || !userData.wialonUser) {
-      
-      navigate("/");
-    } else {
+    cerrarFB();
+   
       wialon.core.Session.getInstance().logout(function (code) {
         if (code) {
           console.log(wialon.core.Errors.getErrorText(code));
         } else {
-        
+       
           userChange({
             user: "",
             userUid: "",
@@ -51,10 +65,11 @@ function NavBar() {
             sesion: "",
             wialonUser: "",
           });
+          
           navigate("/");
         }
       });
-    }
+    
   };
 
   return (

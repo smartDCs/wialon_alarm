@@ -3,6 +3,9 @@ import { Col, Container, Form, Row, Table } from "react-bootstrap";
 import "../styles/Styles.css";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
+import EmergencyShareIcon from '@mui/icons-material/EmergencyShare';
+import ReactDOMServer from 'react-dom/server'
+import PictureAsPdfSharpIcon from '@mui/icons-material/PictureAsPdfSharp';
 
 import {
   LayersControl,
@@ -11,7 +14,12 @@ import {
   TileLayer,
   Tooltip,
 } from "react-leaflet";
+import L from 'leaflet'
 import "leaflet/dist/leaflet.css";
+import LinkSharpIcon from '@mui/icons-material/LinkSharp';
+import LinkOffSharpIcon from '@mui/icons-material/LinkOffSharp';
+import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
+import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 
 import DownloadIcon from "@mui/icons-material/Download";
 import { DataContext } from "../context/DataContext";
@@ -21,6 +29,16 @@ import { useNavigate } from "react-router-dom";
 import ToolBar from "../components/ToolBar";
 function Home() {
   const navigate = useNavigate();
+  const [selectedRows, setSelectedRows] = useState([]);
+const linked=false;
+  const iconMarkup = ReactDOMServer.renderToString(<EmergencyShareIcon style={{ color: 'red', fontSize: '40px',  filter: 'drop-shadow(3px 3px 1px rgba(2, 2, 2, 0.95))' }} />)
+
+  const customIcon = new L.DivIcon({
+    html: iconMarkup,
+    className: '', // para que no tenga estilos por defecto
+    iconSize: [32, 32],
+    iconAnchor: [16,32], // ajusta si el ícono está desalineado
+  })
 
   /**
    * obtenemos los datos del inicio de sesion
@@ -33,6 +51,8 @@ function Home() {
 
   const [subcuentaID, setSubcuentaID] = useState("");
   const [ids,setIds]=useState([]);
+
+  const { neighborhood, setNeighborhood } = useContext(DataContext);
 
 /**
  * 
@@ -94,8 +114,7 @@ const [unidades, setUnidades] = useState([]);
 
 
 
-console.log("grupo encontrado", data.items[0].$$user_name
-,"equipos encontrados",data.items[0].getUnits());
+
 
 const grupo=data.items[0];
 const unitsId=grupo.getUnits();
@@ -110,7 +129,7 @@ unitsId.forEach((unidadId) => {
       sortType: "sys_name",
     },
     1,
-    flags,
+    6817569,
     0,
     0,
     (error, resultado) => {
@@ -120,11 +139,17 @@ unitsId.forEach((unidadId) => {
       }
 
       const unidad = resultado.items[0];
-
+      
+//console.log("comandos",unidad.getCommands());
       tempUnidades.push({
-        nombre: unidad.getName(),
+        name: unidad.getName(),
         id: unidad.getId(),
-        posicion: unidad.getPosition(),
+        lng: unidad.getPosition().x,
+        lat: unidad.getPosition().y,
+        phone:unidad.$$user_phoneNumber,
+        commands: unidad.getCommands(),
+       unit:unidad
+
       });
 
       // Solo actualizamos el estado una vez tengamos todas
@@ -132,7 +157,7 @@ unitsId.forEach((unidadId) => {
         setUnidades(tempUnidades);
       }
 
-      
+   
   
     }
   );
@@ -142,14 +167,24 @@ unitsId.forEach((unidadId) => {
    }
     );
   };
-  useEffect(() => {
- console.log("unidades", unidades);
-  }, [unidades]);
+
+/**
+ * cuando selecciona una estación ubicada en el mapa
+ */
+useEffect(()=>{
+console.log("seleccionados",selectedRows);
+console.log("unidades",unidades);
+},[selectedRows])
+useEffect(()=>{
+  console.log("neighborhood",neighborhood);
+  
+  },[neighborhood])
 
   /**
    * método para obtener los reportes
    *
    */
+
   const loadMessages = () => {
     var to = sess.getServerTime(); // tiempo actual
     var from = to - 3600 * 24; //tiempo actual menos 24 horas
@@ -172,7 +207,7 @@ unitsId.forEach((unidadId) => {
   const position = [-0.933712, -78.614649];
 
   const [filterDate, setFilterDate] = useState("");
-  const { neighborhood, setNeighborhood } = useContext(DataContext);
+
   const [eventos, setAEventos] = useState([
     { fecha: "2025-01-16", hora: "14:12:11", activadoPor: "Usuario 1" },
     { fecha: "2025-01-17", hora: "07:00:01", activadoPor: "Usuario 2" },
@@ -198,17 +233,87 @@ unitsId.forEach((unidadId) => {
       return evento.fecha === filterDate; // Compara con la fecha del evento
     })
     .sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Ordena por fecha descendente
-  const [alarmas, setAlarmas] = useState([
-    { name: "GAD-LATACUNGA SIGSICALLE", lat: -0.933712, lng: -78.614649 },
-    { name: "barrio 2", lat: -0.934552, lng: -78.583443 },
-    { name: "barrio 3", lat: -0.944562, lng: -78.583453 },
-    { name: "barrio 4", lat: -0.954562, lng: -78.683453 },
-  ]);
-
+ 
+    /**
+     * exportar datos de la tabla de eventos a un archivo csv
+     */
+    const exportToCSV = () => {
+      const csvContent =
+        'data:text/csv;charset=utf-8,' +
+        [Object.keys(eventos[0]).join(','), ...eventos.map(row => Object.values(row).join(','))].join('\n');
+  
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement('a');
+      link.setAttribute('href', encodedUri);
+      link.setAttribute('download', `${neighborhood.name}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
   return (
     <Container fluid className="m-0 p-0 ">
       <Row className="m-0 p-0">
-        <Col lg={8} md={12} sm={12} xs={12} className="m-0 p-0">
+      <Col lg={3} md={12} sm={12} xs={12} className="m-0 p-0">
+          <Card
+            style={{ maxHeight: "79vh", padding: 10, overflowY: "auto" }}
+            bg="light"
+          >
+            <Container fluid >
+            <Table size="sm">
+                <thead className="tableHead">
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="tableHeader"
+                      style={{ border: "none", textAlign: "center" }}
+                    >
+                      Estaciones de alarma
+                    </td>
+                  </tr>
+                </thead>
+                <tbody>
+    {unidades.map((unidad, index) => {
+      const isSelected = selectedRows.includes(unidad.unit);
+
+      const toggleRow = () => {
+        if (isSelected) {
+          setSelectedRows(selectedRows.filter(i => i !== unidad.unit));
+        } else {
+          setSelectedRows([...selectedRows, unidad.unit]);
+        }
+      };
+
+      return (
+        <tr key={index} className={isSelected ? "selectedRow" : ""}>
+          <td>
+            <input type="checkbox" checked={isSelected} onChange={toggleRow} />
+          </td>
+          <td className="tableRow">{unidad.name}</td>
+          <td className="tableRow">
+            {linked ? <LinkSharpIcon style={{ color: "green" }} /> : <LinkOffSharpIcon style={{ color: "red" }} />}
+          </td>
+          <td className="tableRow">
+            <NotificationsActiveIcon style={{ color: "orange" }} />
+          </td>
+          <td className="tableRow">
+            <NotificationsOffIcon style={{ color: "red" }} />
+          </td>
+        </tr>
+      );
+    })}
+  </tbody>
+              </Table>
+            </Container>
+            {selectedRows.length > 1?<Row>
+              <Button>activar grupo</Button>
+              <Button>desactivar grupo</Button>
+            </Row>  :<></>
+            }
+          
+          </Card>
+
+      </Col>
+        <Col lg={6} md={12} sm={12} xs={12} className="m-0 p-0">
           <Row style={{ width: "100%", height: "79vh" }} className="ps-4 pt-2">
             <MapContainer
               center={position}
@@ -231,20 +336,27 @@ unitsId.forEach((unidadId) => {
                 </LayersControl.BaseLayer>
               </LayersControl>
 
-              {alarmas.map((alarma, index) => (
+              {unidades.map((alarma, index) => (
                 <Marker
                   key={index}
                   position={[alarma.lat, alarma.lng]}
+                  icon={customIcon}
                   eventHandlers={{
                     click: () => {
                       setNeighborhood({
                         name: alarma.name,
                         lat: alarma.lat,
                         lng: alarma.lng,
+                        id: alarma.id,
+                        phone: alarma.phone,
+                        commands: alarma.commands,
+                        unit: alarma.unit,
                       });
+                     
                     },
                   }}
                 >
+                <EmergencyShareIcon/>
                   <Tooltip>
                     <label>{alarma.name}</label>
                   </Tooltip>
@@ -263,7 +375,7 @@ unitsId.forEach((unidadId) => {
         {/**
         Columna para mostrar la lista de eventos suscitados
          */}
-        <Col lg={4} md={12} sm={12} xs={12} className="m-0 pt-2 pb-0">
+        <Col lg={3} md={12} sm={12} xs={12} className="m-0 pt-2 pb-0">
           <Card
             style={{ maxHeight: "71vh", padding: 10, overflowY: "auto" }}
             bg="light"
@@ -321,11 +433,14 @@ unitsId.forEach((unidadId) => {
                 </Form.Group>
               </Col>
               <Col lg={6} md={3} sm={6} xs={6}>
-                <Row className="p-2">
+                <Row className="p-0">
                   {" "}
-                  <Button className="btnDownload">
-                    <DownloadIcon /> Descargar reporte
+                  <Button className="btnDownload"
+                 onClick={exportToCSV}
+                  >
+                    <DownloadIcon /> Exportar csv
                   </Button>
+                
                 </Row>
               </Col>
             </Row>

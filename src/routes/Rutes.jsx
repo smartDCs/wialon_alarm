@@ -1,22 +1,38 @@
-
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import Reportes from "../pages/Reportes";
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
-
+import { useContext } from "react";
+import { UserContext } from "../context/UserContext";
 
 function Rutes() {
-    return (
-        <Routes>
-            <Route path="/" element={<Login />} />
-            <Route path="/report" element={<Reportes/>}/>
-            <Route path="/home" element={<Home/>} />
-            <Route path="/register" element={<Register/>} />
-            <Route path="/profile" element={<Profile/>} />
-        </Routes>
-    )
+  const { userData, loading } = useContext(UserContext);
+
+  if (loading) return <p style={{ textAlign: 'center' }}>Cargando sesión...</p>;
+
+  const isAuth = !!userData.email;
+
+  return (
+    <Routes>
+      <Route path="/" element={isAuth ? <Navigate to="/home" /> : <Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route
+        path="/home"
+        element={isAuth ? <Home /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/report"
+        element={isAuth ? <Reportes /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/profile"
+        element={isAuth ? <Profile /> : <Navigate to="/" />}
+      />
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
 }
 
-export default Rutes
+export default Rutes;
