@@ -6,6 +6,7 @@ import Register from "../pages/Register";
 import Profile from "../pages/Profile";
 import { useContext } from "react";
 import { UserContext } from "../context/UserContext";
+import Historial from "../pages/Historial";
 
 function Rutes() {
   const { userData, loading } = useContext(UserContext);
@@ -29,6 +30,14 @@ function Rutes() {
       <Route
         path="/profile"
         element={isAuth ? <Profile /> : <Navigate to="/" />}
+      />
+      <Route
+        path="/report"
+        element={isAuth ? <Reportes /> : <Navigate to="/" />}
+      />
+       <Route
+        path="/historial"
+        element={isAuth ? <Historial /> : <Navigate to="/" />}
       />
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>

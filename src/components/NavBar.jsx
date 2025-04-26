@@ -11,7 +11,10 @@ import { NavLink, useNavigate } from "react-router-dom";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { signOut } from "firebase/auth";
 import logo from "../assets/images/logo3.png";
+import SummarizeSharpIcon from "@mui/icons-material/SummarizeSharp";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import WarningAmberSharpIcon from "@mui/icons-material/WarningAmberSharp";
+import DoorbellSharpIcon from '@mui/icons-material/DoorbellSharp';
 import { UserContext } from "../context/UserContext";
 
 function NavBar() {
@@ -26,50 +29,41 @@ function NavBar() {
   useEffect(() => {
     setNameUser(userData.user);
     setCurrUser(wialon.core.Session.getInstance().getCurrUser());
-   
   }, [userData]);
 
-
-
- 
-
-
-  const cerrarFB =  () => {
-   
-    signOut(auth).then(() => {
-     
-      navigate("/");
-    }).catch((error) => {
-    console.log(error)
-    });
+  const cerrarFB = () => {
+    signOut(auth)
+      .then(() => {
+        navigate("/");
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   const cerrarSesion = () => {
-   
     cerrarFB();
-   
-      wialon.core.Session.getInstance().logout(function (code) {
-        if (code) {
-          console.log(wialon.core.Errors.getErrorText(code));
-        } else {
-       
-          userChange({
-            user: "",
-            userUid: "",
-            rol: "",
-            email: "",
-            idcw: "",
-            eid: "",
-            uid: "",
-            entidad: "",
-            sesion: "",
-            wialonUser: "",
-          });
-          
-          navigate("/");
-        }
-      });
-    
+
+    wialon.core.Session.getInstance().logout(function (code) {
+      if (code) {
+        console.log(wialon.core.Errors.getErrorText(code));
+      } else {
+        userChange({
+          user: "",
+          userUid: "",
+          rol: "",
+          email: "",
+          idcw: "",
+          eid: "",
+          uid: "",
+          entidad: "",
+          sesion: "",
+          wialonUser: "",
+        });
+
+        navigate("/");
+      }
+    });
   };
 
   return (
@@ -82,45 +76,76 @@ function NavBar() {
     >
       <Container fluid>
         <div
-        style={{
-          display:"flex",
-          justifyContent:"space-between",
-          width:"100%"
-        }}
-        >
-        <Navbar.Toggle aria-controls="basic-navbar-nav" 
-        className="p-0 m-2"
-        />
-        <Navbar.Brand
-          href="/home"
           style={{
             display: "flex",
-            width: "100%",
             justifyContent: "space-between",
+            width: "100%",
           }}
         >
-          <span>
-            <div
-              className="divLogo"
-              style={{
-                padding: 4,
-                width: "8rem",
-                clipPath: "polygon(0% 0%, 100% 0%, 100% 0%, 85% 100%, 0% 100%)",
+          <Navbar.Toggle aria-controls="basic-navbar-nav" className="p-0 m-2" />
+          <Navbar.Brand
+            style={{
+              display: "flex",
+              width: "100%",
+              justifyContent: "space-between",
+            }}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate("/home");
+            }}
+          >
+            <span>
+              <div
+                className="divLogo"
+                style={{
+                  padding: 4,
+                  width: "8rem",
+                  clipPath:
+                    "polygon(0% 0%, 100% 0%, 100% 0%, 85% 100%, 0% 100%)",
+                }}
+              >
+                <label className="ps-2">telegrafia</label>
+              </div>
+            </span>
+            <span>
+              <img src={logo} height={32} />
+            </span>
+          </Navbar.Brand>
+        </div>
+
+        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">
+          <Nav className="ms-auto">
+            <Nav.Link
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/home");
               }}
             >
-              <label className="ps-2">telegrafia</label>
-            </div>
-          </span>
-          <span>
-            <img src={logo} height={32} />
-          </span>
-        
-        </Navbar.Brand>
-       
-        </div>
-      
-        <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end" >
-          <Nav className="ms-auto">
+              <span style={{ color: "white", display: "flex" }}>
+                <DoorbellSharpIcon /> Inicio
+              </span>
+            </Nav.Link>
+
+            <Nav.Link
+              onClick={(e) => {
+                e.preventDefault();
+                navigate("/report");
+              }}
+            >
+              <span style={{ color: "white", display: "flex" }}>
+                <SummarizeSharpIcon /> Reporte
+              </span>
+            </Nav.Link>
+            <Nav.Link
+             onClick={(e) => {
+                e.preventDefault();
+                navigate("/historial");
+              }}
+            >
+              <span style={{ color: "white", display: "flex" }}>
+                <WarningAmberSharpIcon /> Eventos
+              </span>
+            </Nav.Link>
             <NavDropdown
               title={
                 <span style={{ color: "white" }}>
@@ -132,8 +157,9 @@ function NavBar() {
               flip="true"
               align="end"
             >
-              <NavDropdown.Item href="/"
-              disabled={nameUser!=""? true:false}
+              <NavDropdown.Item
+                href="/"
+                disabled={nameUser != "" ? true : false}
               >
                 Login <LoginIcon />
               </NavDropdown.Item>
