@@ -125,7 +125,7 @@ function NavBar() {
                 <DoorbellSharpIcon /> Inicio
               </span>
             </Nav.Link>
-
+{/*
             <Nav.Link
               onClick={(e) => {
                 e.preventDefault();
@@ -136,6 +136,7 @@ function NavBar() {
                 <SummarizeSharpIcon /> Reporte
               </span>
             </Nav.Link>
+*/}
             <Nav.Link
              onClick={(e) => {
                 e.preventDefault();

@@ -11,14 +11,16 @@ import UserState from './context/UserState'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 import { ToastContainer } from "react-toastify";
+import { getDatabase} from "firebase/database";
 import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const app = initializeApp(firebaseConfig);
   const auth=getAuth(app);
 const db=getFirestore(app)
+const db1 = getDatabase();
   return (
-    <UserState app={app} auth={auth} db={db}>
+    <UserState app={app} auth={auth} db={db} db1={db1}>
     <DataState>
  <BrowserRouter>
     <NavBar/>

@@ -4,7 +4,7 @@ import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
 const UserState = ({ children, ...props }) => {
-  const { auth, app, db, db1, storage } = props;
+  const { auth, app, db, db1 } = props;
   const [userData, setUserData] = useState({
     user: "",
     userUid: "",
@@ -73,7 +73,7 @@ const UserState = ({ children, ...props }) => {
 
   return (
     <UserContext.Provider
-      value={{ userData, userChange, auth, db, app, storage, db1, loading }}
+      value={{ userData, userChange, auth, db, app, db1, loading }}
     >
       {children}
     </UserContext.Provider>

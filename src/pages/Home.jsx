@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { Col, Container, Row, Table } from "react-bootstrap";
 import "../styles/Styles.css";
 import Button from "react-bootstrap/Button";
@@ -23,18 +23,22 @@ import LinkOffSharpIcon from "@mui/icons-material/LinkOffSharp";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 
+import { equalTo, onValue, orderByChild, query, ref, push,limitToLast } from "firebase/database";
 
 import { DataContext } from "../context/DataContext";
 import alcaldia from "../assets/images/alcaldiah1.png";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import ToolBar from "../components/ToolBar";
-import notification from "../assets/audio/notification_beep_short.mp3";
+import notification from "../assets/audio/notificacion.mp3";
 function Home() {
   const navigate = useNavigate();
+  const {db1, userData} = useContext(UserContext);
   const [selectedRows, setSelectedRows] = useState([]);
   const [position, setPosition] = useState([-0.933712, -78.614649]);
+  const eventosRef = ref(db1, 'eventos');
   const linked = true;
+  const lastEventKeyRef = useRef(null);
   const iconMarkup = ReactDOMServer.renderToString(
     <EmergencyShareIcon
       style={{
@@ -55,7 +59,7 @@ function Home() {
   /**
    * obtenemos los datos del inicio de sesion
    */
-  const { userData } = useContext(UserContext);
+
   const [sess, setSess] = useState("");
   /**
    * variables para usar con la api de wialon
@@ -63,7 +67,7 @@ function Home() {
 
 
 
-  const { neighborhood, setNeighborhood } = useContext(DataContext);
+  const { setNeighborhood, eventos, eventCoords} = useContext(DataContext);
 
   /**
    *
@@ -104,7 +108,7 @@ function Home() {
       {
         itemsType: "avl_unit_group",
         propName: "rel_user_creator_name",
-        propValueMask: "ALARMAS GAD LATACUNGA",
+        propValueMask: "XAVIER",
         sortType: "sys_name",
       },
       1,
@@ -166,8 +170,6 @@ function Home() {
 
  
 
- 
-
   //const position = [-0.933712, -78.614649];
   
 
@@ -209,6 +211,7 @@ case "activar":
           "success",
           `Alarma ${unidad.name} activada correctamente`
         );
+        saveAlarm("Alarma activada", unidad.name,userData.user,userData.phone||" ",userData.email);
       } else {
         console.error(
           "alarma",
@@ -236,6 +239,8 @@ case "activar":
             "success",
             `Alarma ${unidad.name} desactivada correctamente`
           );
+        
+         saveAlarm("Alarma desactivada", unidad.name,userData.user,userData.phone||" ",userData.email);
         } else {
           console.error(
             "alarma",
@@ -258,9 +263,60 @@ case "activar":
 
 }
 
-useEffect(() => {
-console.log("unidades",unidades);
-}, [unidades]);
+
+
+
+/**
+ * Guardamos el evento de alarma en la base de datos
+ */
+const saveAlarm=(evento, alarmStation,user,phoneNumber,email)=>{
+  // Crea un nuevo evento con ID automático
+push(eventosRef, {
+ evento: evento,
+ estacion: alarmStation,
+ atendido: false,
+ fecha: new Date().toLocaleString(),
+ usuario: user,
+ telefono: phoneNumber,
+ email: email,
+});
+ }
+
+ /**
+  * leemos la base de datos en tiempo real
+  */
+   
+ useEffect(() => {
+  const starCountRef = ref(db1, "eventos");
+  const queryEvent = query(
+    starCountRef,
+    orderByChild("fecha"),
+    limitToLast(1) // solo el último
+  );
+
+  onValue(queryEvent, (snapshot) => {
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const keys = Object.keys(data);
+      const lastKey = keys[0]; // el ID del último evento
+      const lastEvent = data[lastKey];
+
+      // Solo mostramos si es diferente al último mostrado
+      if (lastKey !== lastEventKeyRef.current) {
+        lastEventKeyRef.current = lastKey;
+
+        if (lastEvent.atendido === false) {
+          showToast(
+            "warning",
+            `${lastEvent.estacion} ${lastEvent.evento} ${lastEvent.fecha} ${lastEvent.motivo}`
+          );
+        }
+      }
+    } else {
+      console.log("no se encontraron eventos");
+    }
+  });
+}, [db1]);
   return (
     <Container fluid className="m-0 p-0 ">
       <Row className="m-0 p-0">
@@ -286,7 +342,7 @@ console.log("unidades",unidades);
                     </td>
                   </tr>
                 </thead>
-                <tbody style={{ width: "100%", backgroundColor: "red" }}>
+                <tbody style={{ width: "100%" }}>
                   {unidades.map((unidad, index) => {
                     const isSelected = selectedRows.includes(unidad.unit);
 
