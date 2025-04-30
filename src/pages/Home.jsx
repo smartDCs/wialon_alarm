@@ -23,7 +23,16 @@ import LinkOffSharpIcon from "@mui/icons-material/LinkOffSharp";
 import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 
-import { equalTo, onValue, orderByChild, query, ref, push,limitToLast } from "firebase/database";
+import {
+
+  onValue,
+  orderByChild,
+  query,
+  ref,
+  push,
+  limitToLast,
+  off,
+} from "firebase/database";
 
 import { DataContext } from "../context/DataContext";
 import alcaldia from "../assets/images/alcaldiah1.png";
@@ -31,12 +40,14 @@ import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
 import ToolBar from "../components/ToolBar";
 import notification from "../assets/audio/notificacion.mp3";
+import swal from "sweetalert";
+import Swal from "sweetalert2";
 function Home() {
   const navigate = useNavigate();
-  const {db1, userData} = useContext(UserContext);
+  const { db1, userData } = useContext(UserContext);
   const [selectedRows, setSelectedRows] = useState([]);
   const [position, setPosition] = useState([-0.933712, -78.614649]);
-  const eventosRef = ref(db1, 'eventos');
+  const eventosRef = ref(db1, "eventos");
   const linked = true;
   const lastEventKeyRef = useRef(null);
   const iconMarkup = ReactDOMServer.renderToString(
@@ -65,9 +76,7 @@ function Home() {
    * variables para usar con la api de wialon
    *  */
 
-
-
-  const { setNeighborhood, eventos, eventCoords} = useContext(DataContext);
+  const { setNeighborhood, eventos, eventCoords } = useContext(DataContext);
 
   /**
    *
@@ -168,10 +177,7 @@ function Home() {
     );
   };
 
- 
-
   //const position = [-0.933712, -78.614649];
-  
 
   function ChangeMapView({ coords }) {
     const map = useMap();
@@ -187,136 +193,157 @@ function Home() {
     toast[type](message, { autoClose: false }); // type puede ser 'success', 'error', etc.
   };
 
-/**
- * 
- * @param {*} comando 
- * @param {*} unidad 
- * 
- * ejecuta los comandos de activar y desactivar alarma
- */
+  /**
+   *
+   * @param {*} comando
+   * @param {*} unidad
+   *
+   * ejecuta los comandos de activar y desactivar alarma
+   */
 
-const CmdExec=(comando, unidad)=>{
- 
-switch (comando) {
-case "activar":
-  unidad.unit.remoteCommand(
-    unidad.commands[0].n,
-      "",
-      unidad.commands[0].p,
-      0,
+  const CmdExec = (comando, unidad, motivo) => {
+    switch (comando) {
+      case "activar":
+        unidad.unit.remoteCommand(
+          unidad.commands[0].n,
+          "",
+          unidad.commands[0].p,
+          0,
 
-    function (result) {
-      if (result === 0) {
-        showToast(
-          "success",
-          `Alarma ${unidad.name} activada correctamente`
+          function (result) {
+            if (result === 0) {
+              showToast(
+                "success",
+                `Alarma ${unidad.name} activada correctamente`
+              );
+              saveAlarm(
+                "Alarma activada",
+                unidad.name,
+                userData.user,
+                userData.phone || " ",
+                userData.email,
+                motivo
+              );
+            } else {
+              console.error(
+                "alarma",
+                unidad.name,
+                "Error al enviar el comando:",
+                wialon.core.Errors.getErrorText(result)
+              );
+              showToast("error", `No se pudo activar la alarma ${unidad.name}`);
+            }
+          }
         );
-        saveAlarm("Alarma activada", unidad.name,userData.user,userData.phone||" ",userData.email);
-      } else {
-        console.error(
-          "alarma",
-          unidad.name,
-          "Error al enviar el comando:",
-          wialon.core.Errors.getErrorText(result)
+        break;
+      case "desactivar":
+        unidad.unit.remoteCommand(
+          unidad.commands[1].n,
+          "",
+          unidad.commands[1].p,
+          0,
+          function (result) {
+            if (result === 0) {
+              showToast(
+                "success",
+                `Alarma ${unidad.name} desactivada correctamente`
+              );
+
+              saveAlarm(
+                "Alarma desactivada",
+                unidad.name,
+                userData.user,
+                userData.phone || " ",
+                userData.email,
+                motivo
+              );
+            } else {
+              console.error(
+                "alarma",
+                unidad.name,
+                "Error al enviar el comando:",
+                wialon.core.Errors.getErrorText(result)
+              );
+              showToast(
+                "error",
+                `No se pudo desactivar la alarma ${unidad.name}`
+              );
+            }
+          }
         );
-        showToast(
-          "error",
-          `No se pudo activar la alarma ${unidad.name}`
-        );
-      }
+        break;
+      default:
+        console.error("Comando no reconocido:", comando);
+        break;
     }
-  );
-  break;
-  case "desactivar":
-    unidad.unit.remoteCommand(
-      unidad.commands[1].n,
-      "",
-      unidad.commands[1].p,
-      0,
-      function (result) {
-        if (result === 0) {
-          showToast(
-            "success",
-            `Alarma ${unidad.name} desactivada correctamente`
-          );
-        
-         saveAlarm("Alarma desactivada", unidad.name,userData.user,userData.phone||" ",userData.email);
-        } else {
-          console.error(
-            "alarma",
-            unidad.name,
-            "Error al enviar el comando:",
-            wialon.core.Errors.getErrorText(result)
-          );
-          showToast(
-            "error",
-            `No se pudo desactivar la alarma ${unidad.name}`
-          );
-        }
-      }
+  };
+
+  /**
+   * Guardamos el evento de alarma en la base de datos
+   */
+  const saveAlarm = (
+    evento,
+    alarmStation,
+    user,
+    phoneNumber,
+    email,
+    motivo
+  ) => {
+    // Crea un nuevo evento con ID automático
+    push(eventosRef, {
+      evento: evento,
+      estacion: alarmStation,
+      atendido: false,
+      fecha: new Date().toLocaleString(),
+      usuario: user,
+      telefono: phoneNumber,
+      email: email,
+      motivo: motivo,
+    });
+  };
+
+  /**
+   * leemos la base de datos en tiempo real
+   */
+
+  useEffect(() => {
+    const starCountRef = ref(db1, "eventos");
+    const queryEvent = query(
+      starCountRef,
+      orderByChild("fecha"),
+      limitToLast(1)
     );
-    break;
-    default:
-    console.error("Comando no reconocido:", comando);
-    break;
-}
 
-}
+    const callback = (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const keys = Object.keys(data);
+        const lastKey = keys[0];
+        const lastEvent = data[lastKey];
 
+        if (lastKey !== lastEventKeyRef.current) {
+          lastEventKeyRef.current = lastKey;
 
-
-
-/**
- * Guardamos el evento de alarma en la base de datos
- */
-const saveAlarm=(evento, alarmStation,user,phoneNumber,email)=>{
-  // Crea un nuevo evento con ID automático
-push(eventosRef, {
- evento: evento,
- estacion: alarmStation,
- atendido: false,
- fecha: new Date().toLocaleString(),
- usuario: user,
- telefono: phoneNumber,
- email: email,
-});
- }
-
- /**
-  * leemos la base de datos en tiempo real
-  */
-   
- useEffect(() => {
-  const starCountRef = ref(db1, "eventos");
-  const queryEvent = query(
-    starCountRef,
-    orderByChild("fecha"),
-    limitToLast(1) // solo el último
-  );
-
-  onValue(queryEvent, (snapshot) => {
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      const keys = Object.keys(data);
-      const lastKey = keys[0]; // el ID del último evento
-      const lastEvent = data[lastKey];
-
-      // Solo mostramos si es diferente al último mostrado
-      if (lastKey !== lastEventKeyRef.current) {
-        lastEventKeyRef.current = lastKey;
-
-        if (lastEvent.atendido === false) {
-          showToast(
-            "warning",
-            `${lastEvent.estacion} ${lastEvent.evento} ${lastEvent.fecha} ${lastEvent.motivo}`
-          );
+          if (lastEvent.atendido === false) {
+            showToast(
+              "warning",
+              `${lastEvent.estacion} ${lastEvent.evento} ${lastEvent.fecha} ${lastEvent.motivo}`
+            );
+          }
         }
+      } else {
+        console.log("no se encontraron eventos");
       }
-    } else {
-      console.log("no se encontraron eventos");
-    }
-  });
-}, [db1]);
+    };
+
+    onValue(queryEvent, callback);
+
+    return () => {
+      // ❗ Esto es lo correcto: debes pasar el MISMO query y el callback
+      off(queryEvent, "value", callback);
+    };
+  }, [db1]);
+
   return (
     <Container fluid className="m-0 p-0 ">
       <Row className="m-0 p-0">
@@ -328,7 +355,7 @@ push(eventosRef, {
             <Container fluid>
               <Table size="sm">
                 <thead className="tableHead">
-                  <tr >
+                  <tr>
                     <td
                       colSpan={5}
                       className="tableHeader"
@@ -371,7 +398,7 @@ push(eventosRef, {
                         <td
                           className="tableRow"
                           onClick={() => {
-                            console.log("posición", unidad.lat, unidad.lng);
+                            // console.log("posición", unidad.lat, unidad.lng);
                             setPosition([unidad.lat, unidad.lng]);
                           }}
                         >
@@ -387,18 +414,81 @@ push(eventosRef, {
                         <td className="tableRow">
                           <NotificationsActiveIcon
                             style={{ color: "orange" }}
-
                             onClick={() => {
-                              CmdExec("activar", unidad)
+                              Swal.fire({
+                                title: "Ingrese el motivo de la alarma",
+                                input: "text",
+                                customClass: {
+                               
+                                  confirmButton: "btnConfirm",
+                               
+                                  cancelButton: "btnCancel",
+                                
+                                },
+                                inputAttributes: {
+                                  autocapitalize: "off",
+                                },
+                                showCancelButton: true,
+                                confirmButtonText: "Aceptar",
+                                showLoaderOnConfirm: true,
+                                cancelButtonText: "Cancelar",
+                                preConfirm: () => {
+                                  const motivo = Swal.getInput().value;
+                                  if (!motivo) {
+                                    Swal.showValidationMessage(
+                                      "Por favor ingrese un motivo"
+                                    );
+                                  } else {
+                                    CmdExec("activar", unidad, motivo);
+                                  }
+                                },
+                                allowOutsideClick: () => !Swal.isLoading(),
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  return;
+                                }
+                              });
                             }}
                           />
                         </td>
                         <td className="tableRow">
-                          <NotificationsOffIcon style={{ color: "red" }} 
-  onClick={() => {
-                              CmdExec("desactivar", unidad)
+                          <NotificationsOffIcon
+                            style={{ color: "red" }}
+                            onClick={() => {
+                              Swal.fire({
+                                title: "Ingrese el motivo de la alarma",
+                                input: "text",
+                                customClass: {
+                               
+                                  confirmButton: "btnConfirm",
+                               
+                                  cancelButton: "btnCancel",
+                                
+                                },
+                                inputAttributes: {
+                                  autocapitalize: "off",
+                                },
+                                showCancelButton: true,
+                                confirmButtonText: "Aceptar",
+                                cancelButtonText: "Cancelar",
+                                showLoaderOnConfirm: true,
+                                preConfirm: () => {
+                                  const motivo = Swal.getInput().value;
+                                  if (!motivo) {
+                                    Swal.showValidationMessage(
+                                      "Por favor ingrese un motivo"
+                                    );
+                                  } else {
+                                    CmdExec("desactivar", unidad, motivo);
+                                  }
+                                },
+                                allowOutsideClick: () => !Swal.isLoading(),
+                              }).then((result) => {
+                                if (result.isConfirmed) {
+                                  return;
+                                }
+                              });
                             }}
-
                           />
                         </td>
                       </tr>
@@ -420,8 +510,18 @@ push(eventosRef, {
                   <Button
                     variant="success"
                     onClick={() => {
-                      unidades.forEach((unidad) => {
-                     CmdExec("activar", unidad)
+                      swal({
+                        title: "¿Está seguro de activar el grupo de alarmas?",
+                        text: "Esta acción activará todas las alarmas seleccionadas.",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                      }).then((willDelete) => {
+                        if (willDelete) {
+                          unidades.forEach((unidad) => {
+                            CmdExec("activar", unidad);
+                          });
+                        }
                       });
                     }}
                   >
@@ -432,8 +532,19 @@ push(eventosRef, {
                   <Button
                     variant="danger"
                     onClick={() => {
-                      unidades.forEach((unidad) => {
-                       CmdExec("desactivar", unidad)
+                      swal({
+                        title:
+                          "¿Está seguro de desactivar el grupo de alarmas?",
+                        text: "Esta acción desactivará todas las alarmas seleccionadas.",
+                        icon: "warning",
+                        buttons: true,
+                        dangerMode: true,
+                      }).then((willDelete) => {
+                        if (willDelete) {
+                          unidades.forEach((unidad) => {
+                            CmdExec("desactivar", unidad);
+                          });
+                        }
                       });
                     }}
                   >
@@ -454,7 +565,7 @@ push(eventosRef, {
           </Card>
         </Col>
         <Col lg={9} md={12} sm={12} xs={12} className="m-0 p-0">
-          <Row style={{ width: "100%", height: "79vh" }} className="ps-4 pt-2">
+          <Row style={{ width: "100%", height: "88vh" }} className="ps-4 pt-2">
             <MapContainer
               center={position}
               zoom={13}
@@ -503,12 +614,17 @@ push(eventosRef, {
               ))}
             </MapContainer>
           </Row>
+          {/**
           <Row
             style={{ width: "100%", padding: 10 }}
             className="ps-4 pt-2 pe-0"
           >
+          
             <ToolBar />
+           
+           
           </Row>
+           */}
         </Col>
       </Row>
     </Container>

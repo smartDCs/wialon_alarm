@@ -29,7 +29,10 @@ import dayjs from "dayjs";
 import GradingSharpIcon from "@mui/icons-material/GradingSharp";
 import PlagiarismSharpIcon from "@mui/icons-material/PlagiarismSharp";
 import VisibilitySharpIcon from "@mui/icons-material/VisibilitySharp";
+import AssignmentSharpIcon from "@mui/icons-material/AssignmentSharp";
+import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
+import { OTContext } from "../context/OTContext";
 function Historial() {
   const { db1, userData } = useContext(UserContext);
   const [eventos, setEventos] = useState([]);
@@ -39,6 +42,7 @@ function Historial() {
   const [ack, setAck] = useState(0);
   const [nonAck, setNonAck] = useState(0);
   const [caso, setCaso] = useState({});
+  let navigate = useNavigate();
 
   /**
    * Modal para cerrar el caso
@@ -47,6 +51,12 @@ function Historial() {
   const [openModal, setOpenModal] = useState(false);
 
   const CloseModal = () => setOpenModal(false);
+
+  /**
+   * context para la orden de trabajo
+   */
+  const { setEmisor, setDataEvento } = useContext(OTContext);
+
   /**
    * Headers para el archivo CSV
    */
@@ -129,6 +139,16 @@ function Historial() {
     setFilteredEventos(filtered);
   }, [searchTerm, eventos]);
 
+  /**
+   * llamar al reporte
+   */
+
+  const handleReport = (event) => {
+    event.preventDefault();
+
+    navigate("/reporte_trabajo");
+  };
+
   return (
     <Container
       fluid
@@ -138,34 +158,27 @@ function Historial() {
         <Table hover size="sm">
           <thead className="tableHead">
             <tr>
-              <td
-                colSpan={10}
-                className="tableHeader"
-                style={{ border: "none", textAlign: "center", width: "100%" }}
-              >
+              <td colSpan={10} className="tableHeader">
                 <div
                   style={{
                     backgroundColor: "transparent",
                     width: "100%",
                     display: "flex",
+                    flexDirection: "row",
                     justifyContent: "space-between",
+
                     alignItems: "center",
-                    paddingLeft: "100px",
-                    paddingRight: "100px",
+                    paddingLeft: "10px",
+                    paddingRight: "10px",
                   }}
                 >
+                  <span className="divLogo">HISTORIAL DE EVENTOS</span>
                   <span
                     style={{
                       backgroundColor: "transparent",
                       color: "white",
-                      fontSize: "18pt",
-                      fontStyle: "Italic",
+                      fontSize: "0.9rem",
                     }}
-                  >
-                    HISTORIAL DE EVENTOS
-                  </span>
-                  <span
-                    style={{ backgroundColor: "transparent", color: "white" }}
                     onClick={() => {
                       setSearchTerm("true");
                     }}
@@ -173,7 +186,11 @@ function Historial() {
                     <VerifiedUserSharpIcon /> Atendidos: {ack}{" "}
                   </span>
                   <span
-                    style={{ backgroundColor: "transparent", color: "white" }}
+                    style={{
+                      backgroundColor: "transparent",
+                      color: "white",
+                      fontSize: "0.9rem",
+                    }}
                     onClick={() => {
                       setSearchTerm("false");
                     }}
@@ -181,7 +198,11 @@ function Historial() {
                     <GppBadSharpIcon /> No atendidos: {nonAck}
                   </span>
                   <span
-                    style={{ backgroundColor: "transparent", color: "white" }}
+                    style={{
+                      backgroundColor: "transparent",
+                      color: "white",
+                      fontSize: "0.9rem",
+                    }}
                     onClick={() => {
                       setSearchTerm(" ");
                     }}
@@ -195,6 +216,7 @@ function Historial() {
                         width: "200px",
                         display: "flex",
                         justifyContent: "space-between",
+                        fontSize: "0.9rem",
                       }}
                     >
                       <InputGroup>
@@ -205,19 +227,28 @@ function Historial() {
                           type="text"
                           placeholder="Buscar..."
                           value={searchTerm}
+                          style={{ fontSize: "0.9rem" }}
                           onChange={(e) => setSearchTerm(e.target.value)}
                         />
                       </InputGroup>
                     </div>
                   </span>
                   <span
-                    style={{ backgroundColor: "transparent", color: "white" }}
+                    style={{
+                      backgroundColor: "transparent",
+                      color: "white",
+                      fontSize: "0.9rem",
+                    }}
                   >
                     <CSVLink
                       data={currentEvents}
                       headers={headers}
                       filename="Eventos reportados.csv"
-                      style={{ textDecoration: "none", color: "white" }}
+                      style={{
+                        textDecoration: "none",
+                        color: "white",
+                        fontSize: "0.9rem",
+                      }}
                       target="blank"
                     >
                       <FileDownloadSharpIcon />
@@ -276,7 +307,6 @@ function Historial() {
                               border: "none",
                             }}
                             onClick={() => {
-                              
                               setCaso(evento);
                               setOpenModal(true);
                             }}
@@ -285,22 +315,54 @@ function Historial() {
                           </button>
                         </MTooltip>
                       ) : (
-                        <MTooltip title="Cerrar caso" placement="right" arrow>
-                          <button
-                            style={{
-                              backgroundColor: "transparent",
-                              color: "rgb(10,100,180)",
-                              border: "none",
-                            }}
-                            onClick={() => {
-                              setCaso(evento);
+                        <div style={{ display: "flex", flexDirection: "row" }}>
+                          <MTooltip title="Cerrar caso" placement="right" arrow>
+                            <button
+                              style={{
+                                backgroundColor: "transparent",
+                                color: "rgb(10,100,180)",
+                                border: "none",
+                              }}
+                              onClick={() => {
+                                setCaso(evento);
 
-                              setOpenModal(true);
-                            }}
-                          >
-                            <GradingSharpIcon />
-                          </button>
-                        </MTooltip>
+                                setOpenModal(true);
+                              }}
+                            >
+                              <GradingSharpIcon />
+                            </button>
+                          </MTooltip>
+                          <MTooltip title="Generar OT" placement="right" arrow>
+                            <button
+                              style={{
+                                backgroundColor: "transparent",
+                                color: "rgb(10,180,190)",
+                                border: "none",
+                              }}
+                              onClick={(event) => {
+                                setEmisor(
+                                  {
+                                    nombre:userData.user,
+                                    email: userData.email,
+                              });
+                                setDataEvento({
+                                  detalles: evento.evento,
+                                  usuario: evento.usuario,
+                                  cel: evento.telefono,
+                                  email: evento.email,
+                                  estacion: evento.estacion,
+                                  motivo: evento.motivo,
+                                  fecha: evento.fecha,
+                                  numeroOt: evento.index,
+                                });
+
+                                handleReport(event);
+                              }}
+                            >
+                              <AssignmentSharpIcon />
+                            </button>
+                          </MTooltip>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -318,6 +380,8 @@ function Historial() {
           )}
         </Table>
       </div>
+
+      {/** Paginacion */}
       <div
         style={{
           display: "flex",
@@ -367,7 +431,11 @@ function Historial() {
         <Modal.Header closeButton>
           <Modal.Title>
             <div>
-              {caso.atendido?<span>Caso #{caso.index}</span>:<span>Cerrar caso #{caso.index}</span>}
+              {caso.atendido ? (
+                <span>Caso #{caso.index}</span>
+              ) : (
+                <span>Cerrar caso #{caso.index}</span>
+              )}
             </div>
             <div
               style={{
@@ -401,7 +469,6 @@ function Historial() {
                 <strong>Detalles del evento: </strong>
                 {caso.evento}
               </label>
-             
             </div>
             <div
               style={{
@@ -422,110 +489,129 @@ function Historial() {
               </label>
             </div>
 
-            {caso.atendido?(
-              <div style={{display:"flex", flexDirection:"column", borderTop:"1px solid #ccc", paddingTop:"10px"}}>
-              <label><strong> El caso se cerró con los siguientes detalles</strong></label>  
-              <label> <strong>Fecha de cierre: </strong>
-              {caso.fechaCierre}</label>
-              <div style={{display:"flex", justifyContent:"space-between"}}>
-                <label><strong>Responsable: </strong>{caso.responsable}</label>
-                <label><strong>Email: </strong>{caso.emailResponsable}</label>
-              
-              </div>
-              <label><strong>Observaciones: </strong>{caso.observaciones}</label>
-              </div>
-              
-              ):(   
-                <div>
-                 <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                paddingTop: "10px",
-                borderTop: "1px solid #ccc",
-              }}
-            >
-
-
-              <label>
-                <strong>Complete los datos para poder cerrar el caso</strong>
-              </label>
+            {caso.atendido ? (
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "space-between",
-                  paddingTop: "5px",
-                  paddingBottom: "5px",
+                  flexDirection: "column",
+                  borderTop: "1px solid #ccc",
+                  paddingTop: "10px",
                 }}
               >
                 <label>
-                  <strong>Responsable: </strong>
-                  {userData.user}
+                  <strong> El caso se cerró con los siguientes detalles</strong>
                 </label>
                 <label>
-                  <strong>Email: </strong>
-                  {userData.email}
+                  {" "}
+                  <strong>Fecha de cierre: </strong>
+                  {caso.fechaCierre}
+                </label>
+                <div
+                  style={{ display: "flex", justifyContent: "space-between" }}
+                >
+                  <label>
+                    <strong>Responsable: </strong>
+                    {caso.responsable}
+                  </label>
+                  <label>
+                    <strong>Email: </strong>
+                    {caso.emailResponsable}
+                  </label>
+                </div>
+                <label>
+                  <strong>Observaciones: </strong>
+                  {caso.observaciones}
                 </label>
               </div>
+            ) : (
               <div>
-                <Form>
-                  <Form.Group
-                    as={Row}
-                    className="mb-3"
-                    controlId="formHorizontalEmail"
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    paddingTop: "10px",
+                    borderTop: "1px solid #ccc",
+                  }}
+                >
+                  <label>
+                    <strong>
+                      Complete los datos para poder cerrar el caso
+                    </strong>
+                  </label>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      paddingTop: "5px",
+                      paddingBottom: "5px",
+                    }}
                   >
-                    <Form.Label column sm={2}>
-                      Observaciones:
-                    </Form.Label>
-                    <Col sm={10}>
-                      <Form.Control
-                        as="textarea"
-                        rows={3}
-                        placeholder="Observaciones"
-                        style={{ width: "100%" }}
-                        value={observaciones}
-                        onChange={(e) => setObservaciones(e.target.value)}
-                      />
-                    </Col>
-                  </Form.Group>
-                </Form>
-              </div>
-            </div>
-            <div style={{ paddingTop: "20px" }}>
-              <span>¿Está seguro de que desea cerrar este caso?</span>
-              <Button
-                onClick={() => {
-                  const eventoRef = ref(db1, `eventos/${caso.id}`);
-                  const now = new Date().toLocaleString();
+                    <label>
+                      <strong>Responsable: </strong>
+                      {userData.user}
+                    </label>
+                    <label>
+                      <strong>Email: </strong>
+                      {userData.email}
+                    </label>
+                  </div>
+                  <div>
+                    <Form>
+                      <Form.Group
+                        as={Row}
+                        className="mb-3"
+                        controlId="formHorizontalEmail"
+                      >
+                        <Form.Label column sm={2}>
+                          Observaciones:
+                        </Form.Label>
+                        <Col sm={10}>
+                          <Form.Control
+                            as="textarea"
+                            rows={3}
+                            placeholder="Observaciones"
+                            style={{ width: "100%" }}
+                            value={observaciones}
+                            onChange={(e) => setObservaciones(e.target.value)}
+                          />
+                        </Col>
+                      </Form.Group>
+                    </Form>
+                  </div>
+                </div>
+                <div style={{ paddingTop: "20px" }}>
+                  <span>¿Está seguro de que desea cerrar este caso?</span>
+                  <Button
+                    onClick={() => {
+                      const eventoRef = ref(db1, `eventos/${caso.id}`);
+                      const now = new Date().toLocaleString();
 
-                  // Actualiza el evento en Firebase
-                  update(eventoRef, {
-                    atendido: true,
-                    responsable: userData.user,
-                    emailResponsable: userData.email,
-                    observaciones: observaciones,
-                    fechaCierre: now,
-                    // otras propiedades que quieras actualizar
-                  })
-                    .then(() => {
-                      setObservaciones("");
-                      setOpenModal(false);
-                      console.log("Evento actualizado correctamente");
-                    })
-                    .catch((error) => {
-                      console.log("Error al actualizar el evento:", error);
-                    });
-                }}
-                // disabled={!caso.estado}
-              >
-                {" "}
-                Aceptar
-              </Button>
-            </div>
-            </div>
+                      // Actualiza el evento en Firebase
+                      update(eventoRef, {
+                        atendido: true,
+                        responsable: userData.user,
+                        emailResponsable: userData.email,
+                        observaciones: observaciones,
+                        fechaCierre: now,
+                        // otras propiedades que quieras actualizar
+                      })
+                        .then(() => {
+                          setObservaciones("");
+                          setOpenModal(false);
+                          console.log("Evento actualizado correctamente");
+                        })
+                        .catch((error) => {
+                          console.log("Error al actualizar el evento:", error);
+                        });
+                    }}
+                    // disabled={!caso.estado}
+                  >
+                    {" "}
+                    Aceptar
+                  </Button>
+                </div>
+              </div>
             )}
-        
-          
           </div>
         </Modal.Body>
       </Modal>

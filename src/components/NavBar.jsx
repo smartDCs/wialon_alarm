@@ -97,12 +97,6 @@ function NavBar() {
             <span>
               <div
                 className="divLogo"
-                style={{
-                  padding: 4,
-                  width: "8rem",
-                  clipPath:
-                    "polygon(0% 0%, 100% 0%, 100% 0%, 85% 100%, 0% 100%)",
-                }}
               >
                 <label className="ps-2">telegrafia</label>
               </div>

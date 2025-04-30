@@ -7,6 +7,7 @@ import Profile from "../pages/Profile";
 import { useContext } from "react";
 import { UserContext } from "../context/UserContext";
 import Historial from "../pages/Historial";
+import OrdenTrabajo from "../reports/OrdenTrabajo";
 
 function Rutes() {
   const { userData, loading } = useContext(UserContext);
@@ -40,6 +41,7 @@ function Rutes() {
         element={isAuth ? <Historial /> : <Navigate to="/" />}
       />
       <Route path="*" element={<Navigate to="/" />} />
+      <Route path="/reporte_trabajo" element={<OrdenTrabajo/>}/>
     </Routes>
   );
 }
