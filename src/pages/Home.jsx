@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState, useRef } from "react";
-import { Col, Container, Row, Table } from "react-bootstrap";
+import { Accordion, Col, Container, Row, Table } from "react-bootstrap";
 import "../styles/Styles.css";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -24,7 +24,6 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsOffIcon from "@mui/icons-material/NotificationsOff";
 
 import {
-
   onValue,
   orderByChild,
   query,
@@ -47,6 +46,7 @@ function Home() {
   const { db1, userData } = useContext(UserContext);
   const [selectedRows, setSelectedRows] = useState([]);
   const [position, setPosition] = useState([-0.933712, -78.614649]);
+  const [gruposAlarmas, setGruposAlarmas] = useState([]);
   const eventosRef = ref(db1, "eventos");
   const linked = true;
   const lastEventKeyRef = useRef(null);
@@ -117,7 +117,7 @@ function Home() {
       {
         itemsType: "avl_unit_group",
         propName: "rel_user_creator_name",
-        propValueMask: "XAVIER",
+        propValueMask: "ALARMAS GAD LATACUNGA",
         sortType: "sys_name",
       },
       1,
@@ -130,53 +130,103 @@ function Home() {
           return;
         }
 
-        const grupo = data.items[0];
-        const unitsId = grupo.getUnits();
-
-        // Creamos promesas por cada unidad
-        const promises = unitsId.map((unidadId) => {
-          return new Promise((resolve) => {
-            sess.searchItems(
-              {
-                itemsType: "avl_unit",
-                propName: "sys_id",
-                propValueMask: unidadId,
-                sortType: "sys_name",
-              },
-              1,
-              6817569, // flags
-              0,
-              0,
-              (error, resultado) => {
-                if (error || !resultado.items.length) {
-                  console.log(wialon.core.Errors.getErrorText(error));
-                  resolve(null); // manejamos errores devolviendo null
-                } else {
-                  const unidad = resultado.items[0];
-                  resolve({
-                    name: unidad.getName(),
-                    id: unidad.getId(),
-                    lng: unidad.getPosition().x,
-                    lat: unidad.getPosition().y,
-                    phone: unidad.$$user_phoneNumber,
-                    commands: unidad.getCommands(),
-                    unit: unidad,
-                  });
+        const datos = data.items;
+        const grupos = datos.map((grupo) => ({
+          grupoName: grupo.getName(),
+          units: grupo.getUnits(),
+        }));
+        setGruposAlarmas(grupos);
+        /*
+       
+        // Creamos promesas por todas las unidades de todos los grupos
+        const allPromises = grupos.flatMap((group) =>
+          group.units.map((unidadId) => {
+            return new Promise((resolve) => {
+              sess.searchItems(
+                {
+                  itemsType: "avl_unit",
+                  propName: "sys_id",
+                  propValueMask: unidadId,
+                  sortType: "sys_name",
+                },
+                1,
+                6817569, // flags
+                0,
+                0,
+                (error, resultado) => {
+                  if (error || !resultado.items.length) {
+                    console.log(wialon.core.Errors.getErrorText(error));
+                    resolve(null);
+                  } else {
+                    const unidad = resultado.items[0];
+                    resolve({
+                      name: unidad.getName(),
+                      id: unidad.getId(),
+                      lng: unidad.getPosition().x,
+                      lat: unidad.getPosition().y,
+                      phone: unidad.$$user_phoneNumber,
+                      commands: unidad.getCommands(),
+                      unit: unidad,
+                    });
+                  }
                 }
-              }
-            );
-          });
-        });
+              );
+            });
+          })
+        );
 
         // Esperamos a que terminen todas las promesas
-        const resultados = await Promise.all(promises);
+        const resultados = await Promise.all(allPromises);
 
-        // Filtramos los nulls (errores) y actualizamos el estado
+        // Filtramos los nulls y actualizamos el estado
         setUnidades(resultados.filter(Boolean));
+        */
       }
     );
   };
 
+  const searchUnits = async (grupo) => {
+    // Creamos promesas por todas las unidades de todos los grupos
+    const allPromises = grupo.units.map((unidadId) => {
+      return new Promise((resolve) => {
+        sess.searchItems(
+          {
+            itemsType: "avl_unit",
+            propName: "sys_id",
+            propValueMask: unidadId,
+            sortType: "sys_name",
+          },
+          1,
+          6817569, // flags
+          0,
+          0,
+          (error, resultado) => {
+            if (error || !resultado.items.length) {
+              console.log(wialon.core.Errors.getErrorText(error));
+              resolve(null);
+            } else {
+              const unidad = resultado.items[0];
+              resolve({
+                name: unidad.getName(),
+                id: unidad.getId(),
+                lng: unidad.getPosition().x,
+                lat: unidad.getPosition().y,
+                phone: unidad.$$user_phoneNumber,
+                commands: unidad.getCommands(),
+                unit: unidad,
+              });
+            }
+          }
+        );
+      });
+    });
+
+    // Esperamos a que terminen todas las promesas
+    const resultados = await Promise.all(allPromises);
+
+    // Filtramos los nulls y actualizamos el estado
+    setUnidades(resultados.filter(Boolean));
+  };
   //const position = [-0.933712, -78.614649];
 
   function ChangeMapView({ coords }) {
@@ -347,12 +397,192 @@ function Home() {
   return (
     <Container fluid className="m-0 p-0 ">
       <Row className="m-0 p-0">
-        <Col lg={3} md={12} sm={12} xs={12} className="m-0 p-2 ">
+        <Col lg={4} md={12} sm={12} xs={12} className="m-0 p-2 ">
           <Card
-            style={{ maxHeight: "79vh", padding: 10, overflowY: "auto" }}
+            style={{ height: "92vh", padding: 10, overflowY: "auto", overflowX: "hidden" }}
             bg="dark"
           >
-            <Container fluid>
+            <div style={{ color: "white", padding:10 }}>Grupos de alarmas</div>
+            <Card style={{ maxHeight: "75vh", padding: 10, overflowY: "auto", overflowX: "hidden" }}>
+              <Row>
+                <Accordion defaultActiveKey="0">
+                  {gruposAlarmas.map((grupo, index) => {
+                    return (
+                      <Accordion.Item eventKey={index} key={index}>
+                        <Accordion.Header
+                          onClick={() => {
+                            {
+                              /**
+en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
+ */
+                            }
+                            searchUnits(grupo);
+
+                         //   console.log("grupo", grupo);
+                          }}
+                        >
+                          {grupo.grupoName}
+                        </Accordion.Header>
+                        <Accordion.Body>
+                          <Table size="sm">
+                            <tbody style={{ width: "100%" }}>
+                              {unidades.map((unidad, index) => {
+                                const isSelected = selectedRows.includes(
+                                  unidad.unit
+                                );
+
+                                const toggleRow = () => {
+                                  if (isSelected) {
+                                    setSelectedRows(
+                                      selectedRows.filter(
+                                        (i) => i !== unidad.unit
+                                      )
+                                    );
+                                  } else {
+                                    setSelectedRows([
+                                      ...selectedRows,
+                                      unidad.unit,
+                                    ]);
+                                  }
+                                };
+
+                                return (
+                                  <tr
+                                    key={index}
+                                    className={isSelected ? "selectedRow" : ""}
+                                  >
+                                    <td>
+                                      <input
+                                        type="checkbox"
+                                        checked={isSelected}
+                                        onChange={toggleRow}
+                                      />
+                                    </td>
+                                    <td
+                                      className="tableRow"
+                                      onClick={() => {
+                                        // console.log("posición", unidad.lat, unidad.lng);
+                                        setPosition([unidad.lat, unidad.lng]);
+                                      }}
+                                    >
+                                      {unidad.name}
+                                    </td>
+                                    <td className="tableRow">
+                                      {linked ? (
+                                        <LinkSharpIcon
+                                          style={{ color: "green" }}
+                                        />
+                                      ) : (
+                                        <LinkOffSharpIcon
+                                          style={{ color: "red" }}
+                                        />
+                                      )}
+                                    </td>
+                                    <td className="tableRow">
+                                      <NotificationsActiveIcon
+                                        style={{ color: "orange" }}
+                                        onClick={() => {
+                                          Swal.fire({
+                                            title:
+                                              "Ingrese el motivo de la alarma",
+                                            input: "text",
+                                            customClass: {
+                                              confirmButton: "btnConfirm",
+
+                                              cancelButton: "btnCancel",
+                                            },
+                                            inputAttributes: {
+                                              autocapitalize: "off",
+                                            },
+                                            showCancelButton: true,
+                                            confirmButtonText: "Aceptar",
+                                            showLoaderOnConfirm: true,
+                                            cancelButtonText: "Cancelar",
+                                            preConfirm: () => {
+                                              const motivo =
+                                                Swal.getInput().value;
+                                              if (!motivo) {
+                                                Swal.showValidationMessage(
+                                                  "Por favor ingrese un motivo"
+                                                );
+                                              } else {
+                                                CmdExec(
+                                                  "activar",
+                                                  unidad,
+                                                  motivo
+                                                );
+                                              }
+                                            },
+                                            allowOutsideClick: () =>
+                                              !Swal.isLoading(),
+                                          }).then((result) => {
+                                            if (result.isConfirmed) {
+                                              return;
+                                            }
+                                          });
+                                        }}
+                                      />
+                                    </td>
+                                    <td className="tableRow">
+                                      <NotificationsOffIcon
+                                        style={{ color: "red" }}
+                                        onClick={() => {
+                                          Swal.fire({
+                                            title:
+                                              "Ingrese el motivo de la alarma",
+                                            input: "text",
+                                            customClass: {
+                                              confirmButton: "btnConfirm",
+
+                                              cancelButton: "btnCancel",
+                                            },
+                                            inputAttributes: {
+                                              autocapitalize: "off",
+                                            },
+                                            showCancelButton: true,
+                                            confirmButtonText: "Aceptar",
+                                            cancelButtonText: "Cancelar",
+                                            showLoaderOnConfirm: true,
+                                            preConfirm: () => {
+                                              const motivo =
+                                                Swal.getInput().value;
+                                              if (!motivo) {
+                                                Swal.showValidationMessage(
+                                                  "Por favor ingrese un motivo"
+                                                );
+                                              } else {
+                                                CmdExec(
+                                                  "desactivar",
+                                                  unidad,
+                                                  motivo
+                                                );
+                                              }
+                                            },
+                                            allowOutsideClick: () =>
+                                              !Swal.isLoading(),
+                                          }).then((result) => {
+                                            if (result.isConfirmed) {
+                                              return;
+                                            }
+                                          });
+                                        }}
+                                      />
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </Table>
+                        </Accordion.Body>
+                      </Accordion.Item>
+                    );
+                  })}
+                </Accordion>
+              </Row>
+            </Card>
+
+            {/** 
+            <Row>
               <Table size="sm">
                 <thead className="tableHead">
                   <tr>
@@ -419,11 +649,9 @@ function Home() {
                                 title: "Ingrese el motivo de la alarma",
                                 input: "text",
                                 customClass: {
-                               
                                   confirmButton: "btnConfirm",
-                               
+
                                   cancelButton: "btnCancel",
-                                
                                 },
                                 inputAttributes: {
                                   autocapitalize: "off",
@@ -459,11 +687,9 @@ function Home() {
                                 title: "Ingrese el motivo de la alarma",
                                 input: "text",
                                 customClass: {
-                               
                                   confirmButton: "btnConfirm",
-                               
+
                                   cancelButton: "btnCancel",
-                                
                                 },
                                 inputAttributes: {
                                   autocapitalize: "off",
@@ -496,17 +722,23 @@ function Home() {
                   })}
                 </tbody>
               </Table>
-            </Container>
+            </Row>
+*/}
+            {/**
+            Muestra los botones para activar los grupos de alarmas
+             */}
             {selectedRows.length > 1 ? (
               <Row
-                className="m-0 p-0"
+                className="mt-2"
                 style={{
                   width: "100%",
                   display: "flex",
                   justifyContent: "space-between",
                 }}
               >
-                <Col lg={6} md={6} sm={6} xs={6} className="gap-4">
+                <Col lg={6} md={6} sm={6} xs={6} className="gap-4"
+                style={{display:"flex", justifyContent:"flex-end"}}>
+                
                   <Button
                     variant="success"
                     onClick={() => {
@@ -519,7 +751,11 @@ function Home() {
                       }).then((willDelete) => {
                         if (willDelete) {
                           unidades.forEach((unidad) => {
-                            CmdExec("activar", unidad);
+                            CmdExec(
+                              "activar",
+                              unidad,
+                              "Activado por el administrador"
+                            );
                           });
                         }
                       });
@@ -528,7 +764,7 @@ function Home() {
                     Activar grupo
                   </Button>
                 </Col>
-                <Col lg={6} md={6} sm={6} xs={6} className="gap-4">
+                <Col lg={6} md={6} sm={6} xs={6} className="gap-4 ">
                   <Button
                     variant="danger"
                     onClick={() => {
@@ -542,7 +778,11 @@ function Home() {
                       }).then((willDelete) => {
                         if (willDelete) {
                           unidades.forEach((unidad) => {
-                            CmdExec("desactivar", unidad);
+                            CmdExec(
+                              "desactivar",
+                              unidad,
+                              "Desactivado por el administrador"
+                            );
                           });
                         }
                       });
@@ -556,16 +796,18 @@ function Home() {
               <></>
             )}
 
-            <Container
-              fluid
-              className="d-flex justify-content-lg-end align-items-center align-content-center"
-            >
-              <img src={alcaldia} width="50%" />
-            </Container>
+            <Row>
+              <Container
+                fluid
+                className="d-flex justify-content-lg-end align-items-center align-content-center"
+              >
+                <img src={alcaldia} width="50%" />
+              </Container>
+            </Row>
           </Card>
         </Col>
-        <Col lg={9} md={12} sm={12} xs={12} className="m-0 p-0">
-          <Row style={{ width: "100%", height: "88vh" }} className="ps-4 pt-2">
+        <Col lg={8} md={12} sm={12} xs={12} className="m-0 p-0">
+          <Row style={{ width: "100%", height: "92vh" }} className="ps-4 pt-2">
             <MapContainer
               center={position}
               zoom={13}

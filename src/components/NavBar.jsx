@@ -167,7 +167,7 @@ function NavBar() {
                 <AccountBoxIcon />
                 Perfil
               </NavDropdown.Item>
-              <NavDropdown.Item href="/settings">
+              <NavDropdown.Item href="/setup">
                 <SettingsIcon />
                 Configuración
               </NavDropdown.Item>
