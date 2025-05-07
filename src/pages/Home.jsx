@@ -37,7 +37,7 @@ import { DataContext } from "../context/DataContext";
 import alcaldia from "../assets/images/alcaldiah1.png";
 import { UserContext } from "../context/UserContext";
 import { useNavigate } from "react-router-dom";
-import ToolBar from "../components/ToolBar";
+
 import notification from "../assets/audio/notificacion.mp3";
 import swal from "sweetalert";
 import Swal from "sweetalert2";
@@ -131,6 +131,7 @@ function Home() {
         }
 
         const datos = data.items;
+      
         const grupos = datos.map((grupo) => ({
           grupoName: grupo.getName(),
           units: grupo.getUnits(),
@@ -226,6 +227,7 @@ function Home() {
 
     // Filtramos los nulls y actualizamos el estado
     setUnidades(resultados.filter(Boolean));
+    
   };
   //const position = [-0.933712, -78.614649];
 
@@ -239,7 +241,7 @@ function Home() {
 
   const showToast = (type, message) => {
     const audio = new Audio(notification);
-    audio.play();
+   // audio.play();
     toast[type](message, { autoClose: false }); // type puede ser 'success', 'error', etc.
   };
 
@@ -252,6 +254,7 @@ function Home() {
    */
 
   const CmdExec = (comando, unidad, motivo) => {
+   
     switch (comando) {
       case "activar":
         unidad.unit.remoteCommand(
@@ -272,7 +275,9 @@ function Home() {
                 userData.user,
                 userData.phone || " ",
                 userData.email,
-                motivo
+                motivo,
+                unidad.lat,
+                unidad.lng
               );
             } else {
               console.error(
@@ -305,7 +310,9 @@ function Home() {
                 userData.user,
                 userData.phone || " ",
                 userData.email,
-                motivo
+                motivo,
+                unidad.lat,
+                unidad.lng
               );
             } else {
               console.error(
@@ -337,7 +344,9 @@ function Home() {
     user,
     phoneNumber,
     email,
-    motivo
+    motivo,
+    lat,
+    lng
   ) => {
     // Crea un nuevo evento con ID automático
     push(eventosRef, {
@@ -349,6 +358,8 @@ function Home() {
       telefono: phoneNumber,
       email: email,
       motivo: motivo,
+      lat:lat,
+      lng:lng
     });
   };
 

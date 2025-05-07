@@ -1,0 +1,420 @@
+import React, { useState, useEffect, useContext } from "react";
+import { Button, Col, Container, Row, Table } from "react-bootstrap";
+
+//import { BarChart } from "@mui/x-charts/BarChart";
+/**
+ * importamos las librerias para el manego de la gráfica de barras
+ */
+import {
+  ChartContainer,
+  ChartsXAxis,
+  ChartsYAxis,
+  BarPlot,
+  ChartsTooltip,
+} from "@mui/x-charts";
+import { useAnimate } from "@mui/x-charts/hooks";
+import { interpolateObject } from "@mui/x-charts-vendor/d3-interpolate";
+import { styled } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { UserContext } from "../context/UserContext";
+import { onValue, orderByChild, query, ref } from "firebase/database";
+import EmergencyShareIcon from "@mui/icons-material/EmergencyShare";
+import ReactDOMServer from "react-dom/server";
+import {
+  agruparEventos,
+  transformarParaBarChart,
+} from "../components/Conversiones";
+
+/**
+ * librerias para manejar los mapas
+ */
+import {
+  Circle,
+  LayersControl,
+  MapContainer,
+  Marker,
+  TileLayer,
+  Tooltip,
+  useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+/**
+ * Métodos necesarios para mostrar los labels sobre las barras
+ */
+const Text = styled("text")(({ theme }) => ({
+  ...theme?.typography?.body2,
+  stroke: "CaptionText",
+  fill: (theme.vars || theme)?.palette?.text?.primary,
+  transition: "opacity 0.2s ease-in, fill 0.2s ease-in",
+  textAnchor: "middle",
+  dominantBaseline: "central",
+  pointerEvents: "none",
+}));
+
+function BarLabel(props) {
+  const {
+    seriesId,
+    dataIndex,
+    color,
+    isFaded,
+    isHighlighted,
+    classes,
+    xOrigin,
+    yOrigin,
+    x,
+    y,
+    width,
+    height,
+    layout,
+    skipAnimation,
+    ...otherProps
+  } = props;
+
+  const animatedProps = useAnimate(
+    { x: x + width / 2, y: y - 8 },
+    {
+      initialProps: { x: x + width / 2, y: yOrigin },
+      createInterpolator: interpolateObject,
+      transformProps: (p) => p,
+      applyProps: (element, p) => {
+        element.setAttribute("x", p.x.toString());
+        element.setAttribute("y", p.y.toString());
+      },
+      skip: skipAnimation,
+    }
+  );
+
+  return (
+    <Text {...otherProps} fill={color} textAnchor="middle" {...animatedProps} />
+  );
+}
+
+function Trends() {
+  const { db1 } = useContext(UserContext);
+  const [eventos, setEventos] = useState([]);
+  const [dataBar, setDataBar] = useState([]);
+  const [estacionesBarchart, setEstacionesBarChart] = useState([]);
+
+  const [estacionSeleccionada, setEstacionSeleccionada] = useState(null);
+  const [position, setPosition] = useState([-0.933712, -78.614649]);
+const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
+  /**
+   * Custom icon para el mapa
+   * @returns
+   */
+
+  const iconMarkup = ReactDOMServer.renderToString(
+    <EmergencyShareIcon
+      style={{
+        color: "red",
+        fontSize: "40px",
+        filter: "drop-shadow(3px 3px 1px rgba(2, 2, 2, 0.95))",
+      }}
+    />
+  );
+
+  const customIcon = new L.DivIcon({
+    html: iconMarkup,
+    className: "", // para que no tenga estilos por defecto
+    iconSize: [32, 32],
+    iconAnchor: [16, 32], // ajusta si el ícono está desalineado
+  });
+
+  /**
+   * Método para cambiar la posicion del centro del mapa
+   *
+   */
+  function ChangeMapView({ coords }) {
+    const map = useMap();
+    useEffect(() => {
+      map.setView(coords, map.getZoom());
+    }, [coords]);
+    return null;
+  }
+  /**
+   * leemos la base de datos de firebase y obtenemos los datos de la tabla de incidentes
+   * y los convertimos a un formato compatible con el PieChart
+   */
+
+  useEffect(() => {
+    const starCountRef = ref(db1, "eventos");
+    const queryEvent = query(starCountRef, orderByChild("fecha"));
+    onValue(queryEvent, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const eventosArray = Object.keys(data)
+          .map((key, index) => ({
+            ...data[key],
+            id: key,
+            index: index + 1,
+          }))
+          .reverse();
+
+        setEventos(eventosArray);
+        //console.log("eventos", eventosArray);
+      } else {
+        console.log("no se encontraron los eventos");
+      }
+    });
+  }, [db1]);
+
+  useEffect(() => {
+    const eventosagrupados = agruparEventos(eventos);
+    setDataBar(transformarParaBarChart(eventosagrupados));
+    setEstacionesBarChart(Object.keys(eventosagrupados));
+  }, [eventos]);
+
+  /**
+   * Calculamos el total de eventos por mes
+   */
+  const calcularTotalPorMes = (dataBar) => {
+    return dataBar.map((d) => {
+      const total = Object.keys(d)
+        .filter((key) => key !== "mes")
+        .reduce((sum, key) => sum + d[key], 0);
+      return { mes: d.mes, total };
+    });
+  };
+
+  /**
+   * filtramos la data
+   */
+  const dataFiltrada = estacionSeleccionada
+    ? dataBar
+        .filter((d) => d[estacionSeleccionada] !== undefined)
+        .map((d) => ({
+          mes: d.mes,
+          [estacionSeleccionada]: d[estacionSeleccionada],
+        }))
+    : calcularTotalPorMes(dataBar);
+
+  useEffect(() => {
+   
+    if (estacionSeleccionada != null) {
+      const eventosFiltrados = eventos.filter(
+        (evento) => evento.estacion === estacionSeleccionada
+      );
+
+      setPosition([eventosFiltrados[0].lat, eventosFiltrados[0].lng]);
+    }
+  }, [estacionSeleccionada]);
+  
+  useEffect(() => {
+    if (!estacionSeleccionada) return;
+  
+    let totalEventos = 0;
+  
+    dataFiltrada.forEach((dato) => {
+      // Accede dinámicamente al valor por nombre de estación
+      if (dato[estacionSeleccionada]) {
+        totalEventos += dato[estacionSeleccionada];
+      }
+    });
+  
+   
+    setTotalEventosEstacion(totalEventos)
+  }, [dataFiltrada, estacionSeleccionada]);
+
+  return (
+    <Container fluid>
+      <Row>
+        <Col lg={3} md={3} xs={12} sm={12} xl={3}>
+          <Row className="justify-content-center ">
+            <label style={{ color: "white" }}>Alarmas</label>
+            <div
+              style={{
+                borderRadius: 8,
+                overflowY: "auto",
+                maxHeight: "70vh",
+              }}
+            >
+              {/**
+Mostramos las estaciones de alarmas
+ */}
+              <Table size="sm">
+                <thead className="tableHead">
+                  <tr>
+                    <th colSpan={5} className="tableHeader">
+                      Estación
+                    </th>
+                  </tr>
+                </thead>
+                <tbody style={{ width: "100%" }}>
+                  {estacionesBarchart.map((estacion, index) => {
+                    return (
+                      <tr
+                        key={index}
+                        onClick={() => {
+                          setEstacionSeleccionada((prev) =>
+                            prev === estacion ? null : estacion
+                          );
+                        }}
+                      >
+                        <td
+                          colSpan={5}
+                          className="tableRow"
+                          style={{
+                            cursor: "pointer",
+                            backgroundColor:
+                              estacion === estacionSeleccionada
+                                ? "rgba(100,200,10,0.6)"
+                                : "rgb(255,255,255)",
+                            color:
+                              estacion === estacionSeleccionada
+                                ? "white"
+                                : "black",
+                          }}
+                        >
+                          {estacion}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </Table>
+            </div>
+          </Row>
+        </Col>
+
+        <Col lg={9} md={9} xs={12} sm={12} xl={9}>
+          <Row>
+            <Col lg={6} md={6} xs={12} sm={12}>
+              <Row>
+                {/**
+Chart container
+ */}
+                <label style={{ color: "white" }}>Índice de seguridad</label>
+                <div
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.9)",
+                    padding: 20,
+                    borderRadius: 8,
+                    height: "70vh",
+                  }}
+                >
+                  <h5 style={{ textAlign: "center", marginBottom: 10 }}>
+                    {estacionSeleccionada
+                      ? `${estacionSeleccionada}`
+                      : "Total de eventos por mes"}
+                  </h5>
+                  <ChartContainer
+                    dataset={dataFiltrada}
+                    xAxis={[{ scaleType: "band", dataKey: "mes" }]}
+                    series={[
+                      {
+                        type: "bar",
+                        dataKey: estacionSeleccionada ?? "total",
+                        label: estacionSeleccionada ?? "Total",
+                      },
+                    ]}
+                  >
+                    <BarPlot barLabel="value" slots={{ barLabel: BarLabel }} />
+                    <ChartsXAxis />
+                    <ChartsYAxis />
+                    <ChartsTooltip />
+                  </ChartContainer>
+                </div>
+              </Row>
+            </Col>
+
+            <Col lg={6} md={6} xs={12} sm={12}>
+              <label style={{ color: "white" }}>Barrios más peligrosos</label>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "70vh",
+                  backgroundColor: "rgba(255,255,255,0.9)",
+                  borderRadius: 8,
+                }}
+              >
+                <MapContainer
+                  center={position}
+                  zoom={13}
+                  scrollWheelZoom={true}
+                  style={{ width: "100%", height: "100%" }}
+                >
+                  <ChangeMapView coords={position} />
+                  <LayersControl position="topright">
+                    <LayersControl.BaseLayer name="Vista de satélite">
+                      <TileLayer
+                        url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+                        attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
+                      />
+                    </LayersControl.BaseLayer>
+                    <LayersControl.BaseLayer checked name="Relieve">
+                      <TileLayer
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      />
+                    </LayersControl.BaseLayer>
+                  </LayersControl>
+
+                  {eventos.map((alarma, index) => {
+                    return (
+                      <>
+                        <Marker
+                          key={index}
+                          position={[alarma.lat, alarma.lng]}
+                          icon={customIcon}
+                        >
+                          <Tooltip>
+                            <label>{alarma.name}</label>
+                          </Tooltip>
+                        </Marker>
+                        <Circle
+                          center={[alarma.lat, alarma.lng]}
+                          radius={600}
+                          pathOptions={{ fillColor: "red", color: "red" }}
+                        />
+                        {estacionSeleccionada != null ? (
+                          <>
+                            {" "}
+                            <Circle
+                              center={position}
+                              radius={600}
+                              pathOptions={{
+                                fillColor: "yellow",
+                                color: "yellow",
+                              }}
+                            >
+                              <Tooltip
+                                permanent={true}
+                                direction="right"
+                                offset={[0, 20]}
+                                opacity={1}
+                              >
+                                Eventos sucitados {totalEventosEstacion}
+                              </Tooltip>
+                            </Circle>
+                          </>
+                        ) : null}
+                      </>
+                    );
+                  })}
+                </MapContainer>
+              </div>
+            </Col>
+          </Row>
+          <Row>
+            <div
+              style={{
+                padding: 10,
+                display: "flex",
+                justifyContent: "center",
+                gap: 10,
+              }}
+            >
+              <Button>Exportar </Button>
+              <Button>Exportar </Button>
+            </div>
+          </Row>
+        </Col>
+      </Row>
+    </Container>
+  );
+}
+
+export default Trends;

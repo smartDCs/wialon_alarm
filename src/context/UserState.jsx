@@ -5,6 +5,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 const UserState = ({ children, ...props }) => {
   const { auth, app, db, db1 } = props;
+ 
   const [userData, setUserData] = useState({
     user: "",
     userUid: "",

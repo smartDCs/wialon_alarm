@@ -11,7 +11,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { signOut } from "firebase/auth";
 import logo from "../assets/images/logo3.png";
-import SummarizeSharpIcon from "@mui/icons-material/SummarizeSharp";
+
+import TimelineSharpIcon from '@mui/icons-material/TimelineSharp';
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import WarningAmberSharpIcon from "@mui/icons-material/WarningAmberSharp";
 import DoorbellSharpIcon from '@mui/icons-material/DoorbellSharp';
@@ -139,6 +140,16 @@ function NavBar() {
             >
               <span style={{ color: "white", display: "flex" }}>
                 <WarningAmberSharpIcon /> Eventos
+              </span>
+            </Nav.Link>
+            <Nav.Link
+             onClick={(e) => {
+                e.preventDefault();
+                navigate("/trends");
+              }}
+            >
+              <span style={{ color: "white", display: "flex" }}>
+                <TimelineSharpIcon /> Estadisticas
               </span>
             </Nav.Link>
             <NavDropdown
