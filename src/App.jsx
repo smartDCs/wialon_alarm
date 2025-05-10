@@ -13,6 +13,7 @@ import { ToastContainer } from "react-toastify";
 import { getDatabase } from "firebase/database";
 import "react-toastify/dist/ReactToastify.css";
 import OTData from "./context/OTData";
+import ReportData from "./context/ReportData";
 
 function App() {
   const app = initializeApp(firebaseConfig);
@@ -23,12 +24,15 @@ function App() {
     <UserState app={app} auth={auth} db={db} db1={db1}>
       <OTData>
         <DataState>
+        <ReportData>
           <BrowserRouter>
             <NavBar />
-
+            <div className="workArea">
             <Rutes />
+            </div>
           </BrowserRouter>
           <ToastContainer position="top-right" autoClose={3000} />
+          </ReportData>
         </DataState>
       </OTData>
     </UserState>

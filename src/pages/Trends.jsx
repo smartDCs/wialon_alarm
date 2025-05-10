@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
-
+import { Document, Page, Image, pdf } from "@react-pdf/renderer";
 //import { BarChart } from "@mui/x-charts/BarChart";
 /**
  * importamos las librerias para el manego de la gráfica de barras
@@ -20,6 +20,7 @@ import { UserContext } from "../context/UserContext";
 import { onValue, orderByChild, query, ref } from "firebase/database";
 import EmergencyShareIcon from "@mui/icons-material/EmergencyShare";
 import ReactDOMServer from "react-dom/server";
+
 import {
   agruparEventos,
   transformarParaBarChart,
@@ -39,6 +40,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { ReportContext } from "../context/ReportContext";
 /**
  * Métodos necesarios para mostrar los labels sobre las barras
  */
@@ -91,11 +93,14 @@ function BarLabel(props) {
 }
 
 function Trends() {
+  
+ 
+  const {changeGraph}=useContext(ReportContext)
   const { db1 } = useContext(UserContext);
   const [eventos, setEventos] = useState([]);
   const [dataBar, setDataBar] = useState([]);
   const [estacionesBarchart, setEstacionesBarChart] = useState([]);
-
+  const navigate = useNavigate();
   const [estacionSeleccionada, setEstacionSeleccionada] = useState(null);
   const [position, setPosition] = useState([-0.933712, -78.614649]);
 const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
@@ -121,6 +126,22 @@ const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
     iconAnchor: [16, 32], // ajusta si el ícono está desalineado
   });
 
+
+  const MyPDFDocument = ({ chartImage }) => (
+    <Document>
+      <Page size="A4">
+     
+        <Image src={chartImage} style={{ width: "500px", height: "auto" }} />
+      </Page>
+    </Document>
+  );
+  const handleExportPDF = async () => {
+    const chartImage = await exportGraphAsImage();
+  changeGraph(chartImage);
+
+  navigate('/report')
+  };
+
   /**
    * Método para cambiar la posicion del centro del mapa
    *
@@ -132,6 +153,19 @@ const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
     }, [coords]);
     return null;
   }
+
+  /**
+   * Método para convertir el gráfico de barras en imagen
+   */
+  const exportGraphAsImage = async () => {
+    const html2canvas = (await import('html2canvas')).default;
+    const chartElement = document.getElementById("chart-container");
+    const canvas = await html2canvas(chartElement);
+     const dataUrl = canvas.toDataURL("image/png");
+     console.log("data url",dataUrl)
+    return dataUrl;
+  };
+
   /**
    * leemos la base de datos de firebase y obtenemos los datos de la tabla de incidentes
    * y los convertimos a un formato compatible con el PieChart
@@ -292,6 +326,7 @@ Chart container
                     borderRadius: 8,
                     height: "70vh",
                   }}
+                  id="chart-container"
                 >
                   <h5 style={{ textAlign: "center", marginBottom: 10 }}>
                     {estacionSeleccionada
@@ -308,6 +343,7 @@ Chart container
                         label: estacionSeleccionada ?? "Total",
                       },
                     ]}
+                  
                   >
                     <BarPlot barLabel="value" slots={{ barLabel: BarLabel }} />
                     <ChartsXAxis />
@@ -319,7 +355,7 @@ Chart container
             </Col>
 
             <Col lg={6} md={6} xs={12} sm={12}>
-              <label style={{ color: "white" }}>Barrios más peligrosos</label>
+              <label style={{ color: "white" }}></label>
               <div
                 style={{
                   display: "flex",
@@ -329,6 +365,7 @@ Chart container
                   backgroundColor: "rgba(255,255,255,0.9)",
                   borderRadius: 8,
                 }}
+                
               >
                 <MapContainer
                   center={position}
@@ -366,7 +403,7 @@ Chart container
                         </Marker>
                         <Circle
                           center={[alarma.lat, alarma.lng]}
-                          radius={600}
+                          radius={500}
                           pathOptions={{ fillColor: "red", color: "red" }}
                         />
                         {estacionSeleccionada != null ? (
@@ -374,10 +411,12 @@ Chart container
                             {" "}
                             <Circle
                               center={position}
-                              radius={600}
+                              radius={500}
+                              
                               pathOptions={{
-                                fillColor: "yellow",
-                                color: "yellow",
+                                fillColor: "rgba(255,0,45,0.3)",
+                                color: "rgba(255,23,45,0.2)",
+                               
                               }}
                             >
                               <Tooltip
@@ -407,8 +446,14 @@ Chart container
                 gap: 10,
               }}
             >
-              <Button>Exportar </Button>
-              <Button>Exportar </Button>
+              <Button 
+              onClick={()=>{
+             handleExportPDF();
+                
+                
+              }}
+              >Generar reporte </Button>
+              <Button>Exportar csv </Button>
             </div>
           </Row>
         </Col>

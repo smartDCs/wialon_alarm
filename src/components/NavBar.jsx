@@ -178,7 +178,12 @@ function NavBar() {
                 <AccountBoxIcon />
                 Perfil
               </NavDropdown.Item>
-              <NavDropdown.Item href="/setup">
+              <NavDropdown.Item
+                onClick={(e) => {
+                e.preventDefault();
+                navigate("/setup");
+              }}
+              >
                 <SettingsIcon />
                 Configuración
               </NavDropdown.Item>

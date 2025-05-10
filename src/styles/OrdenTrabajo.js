@@ -152,4 +152,29 @@ bottom:"10mm",
 
 fontStyle:'italic'
   },
+
+  tableReport: {
+    display: "table",
+    width: "auto",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderRightWidth: 0,
+    borderBottomWidth: 0,
+    marginTop:15
+  },
+  tableRowReport: {
+    flexDirection: "row",
+  },
+  tableColReport: {
+    width: "33.33%",
+    borderStyle: "solid",
+    borderWidth: 1,
+    borderLeftWidth: 0,
+    borderTopWidth: 0,
+    padding: 5,
+  },
+  tableCellReport: {
+    fontSize: 10,
+  },
+
 });

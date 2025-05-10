@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import Reportes from "../pages/Reportes";
+
 import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
@@ -10,6 +10,7 @@ import Historial from "../pages/Historial";
 import OrdenTrabajo from "../reports/OrdenTrabajo";
 import { Setup } from "../pages/Setup";
 import Trends from "../pages/Trends";
+import Report from "../reports/Report";
 
 function Rutes() {
   const { userData, loading } = useContext(UserContext);
@@ -28,16 +29,13 @@ function Rutes() {
       />
       <Route
         path="/report"
-        element={isAuth ? <Reportes /> : <Navigate to="/" />}
+        element={isAuth ? <Report /> : <Navigate to="/" />}
       />
       <Route
         path="/profile"
         element={isAuth ? <Profile /> : <Navigate to="/" />}
       />
-      <Route
-        path="/report"
-        element={isAuth ? <Reportes /> : <Navigate to="/" />}
-      />
+   
        <Route
         path="/historial"
         element={isAuth ? <Historial /> : <Navigate to="/" />}

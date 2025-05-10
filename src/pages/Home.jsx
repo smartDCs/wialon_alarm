@@ -95,6 +95,11 @@ function Home() {
     searchStation();
   }, [userData, sess]);
 
+useEffect(()=>{
+ // console.log("ëntidad",userData.entidad)
+ searchStation();
+},[userData.entidad])
+
   /**
    *
    * Buscamos las estaciones de alarma
@@ -117,7 +122,7 @@ function Home() {
       {
         itemsType: "avl_unit_group",
         propName: "rel_user_creator_name",
-        propValueMask: "ALARMAS GAD LATACUNGA",
+        propValueMask: userData.entidad,
         sortType: "sys_name",
       },
       1,
