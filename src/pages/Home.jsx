@@ -845,6 +845,7 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
                                             
                                           </Circle>
               <LayersControl position="topright">
+              {/*
                 <LayersControl.BaseLayer name="Vista de satélite">
                   <TileLayer
                     url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
@@ -857,6 +858,19 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
                 </LayersControl.BaseLayer>
+                */}
+                <LayersControl.BaseLayer name="Vista de satélite">
+                                      <TileLayer
+                                        url=" http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
+                                      
+                                      />
+                                    </LayersControl.BaseLayer>
+                                    <LayersControl.BaseLayer checked name="Relieve">
+                                      <TileLayer
+                                        
+                                        url="https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}"
+                                      />
+                                    </LayersControl.BaseLayer>
               </LayersControl>
 
               {unidades.map((alarma, index) => (

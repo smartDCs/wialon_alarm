@@ -373,14 +373,14 @@ function Trends() {
                   <LayersControl position="topright">
                     <LayersControl.BaseLayer name="Vista de satélite">
                       <TileLayer
-                        url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-                        attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
+                        url=" http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
+                      
                       />
                     </LayersControl.BaseLayer>
                     <LayersControl.BaseLayer checked name="Relieve">
                       <TileLayer
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                        
+                        url="https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}"
                       />
                     </LayersControl.BaseLayer>
                   </LayersControl>
@@ -431,8 +431,12 @@ function Trends() {
                 gap: 10,
               }}
             >
-              <Button onClick={handleExportPDF}>Generar reporte</Button>
-              <Button>Exportar CSV</Button>
+              <Button onClick={handleExportPDF}
+               variant="outline-primary"
+              >Generar reporte</Button>
+              <Button
+               variant="outline-success"
+              >Exportar CSV</Button>
             </div>
           </Row>
         </Card.Body>
