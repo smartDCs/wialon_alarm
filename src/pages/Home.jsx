@@ -96,10 +96,10 @@ function Home() {
     searchStation();
   }, [userData, sess]);
 
-useEffect(()=>{
- // console.log("ëntidad",userData.entidad)
- searchStation();
-},[userData.entidad])
+  useEffect(() => {
+    // console.log("ëntidad",userData.entidad)
+    searchStation();
+  }, [userData.entidad]);
 
   /**
    *
@@ -137,7 +137,7 @@ useEffect(()=>{
         }
 
         const datos = data.items;
-      
+
         const grupos = datos.map((grupo) => ({
           grupoName: grupo.getName(),
           units: grupo.getUnits(),
@@ -233,7 +233,6 @@ useEffect(()=>{
 
     // Filtramos los nulls y actualizamos el estado
     setUnidades(resultados.filter(Boolean));
-    
   };
   //const position = [-0.933712, -78.614649];
 
@@ -247,7 +246,7 @@ useEffect(()=>{
 
   const showToast = (type, message) => {
     const audio = new Audio(notification);
-   // audio.play();
+    // audio.play();
     toast[type](message, { autoClose: false }); // type puede ser 'success', 'error', etc.
   };
 
@@ -260,7 +259,6 @@ useEffect(()=>{
    */
 
   const CmdExec = (comando, unidad, motivo) => {
-   
     switch (comando) {
       case "activar":
         unidad.unit.remoteCommand(
@@ -364,8 +362,8 @@ useEffect(()=>{
       telefono: phoneNumber,
       email: email,
       motivo: motivo,
-      lat:lat,
-      lng:lng
+      lat: lat,
+      lng: lng,
     });
   };
 
@@ -412,21 +410,28 @@ useEffect(()=>{
   }, [db1]);
 
   return (
-    <Container fluid  style={{
-    height: "100%", // asegúrate que el padre permita este alto
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    padding: 10,
-  }}>
-      <Row style={{height:"100%", display:"flex", flexDirection:"column"}}>
-        <Col lg={4} md={12} sm={12} xs={12} style={{height:"100%"}} >
-          <Card
-       style={{ height:"100%", padding:10}}
-            bg="dark"
-          >
-            <div style={{ color: "white", padding:10 }}>Grupos de alarmas</div>
-            <Card style={{ flexGrow:1, padding: 10, overflowY: "auto", overflowX: "hidden" }}>
+    <Container
+      fluid
+      style={{
+        height: "100%", // asegúrate que el padre permita este alto
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        padding: 10,
+      }}
+    >
+      <Row style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <Col lg={4} md={12} sm={12} xs={12} style={{ height: "100%" }}>
+          <Card style={{ height: "100%", padding: 10 }} bg="dark">
+            <div style={{ color: "white", padding: 10 }}>Grupos de alarmas</div>
+            <Card
+              style={{
+                flexGrow: 1,
+                padding: 10,
+                overflowY: "auto",
+                overflowX: "hidden",
+              }}
+            >
               <Row>
                 <Accordion defaultActiveKey="0">
                   {gruposAlarmas.map((grupo, index) => {
@@ -441,7 +446,7 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
                             }
                             searchUnits(grupo);
 
-                         //   console.log("grupo", grupo);
+                            //   console.log("grupo", grupo);
                           }}
                         >
                           {grupo.grupoName}
@@ -759,9 +764,14 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
                   justifyContent: "space-between",
                 }}
               >
-                <Col lg={6} md={6} sm={6} xs={6} className="gap-4"
-                style={{display:"flex", justifyContent:"flex-end"}}>
-                
+                <Col
+                  lg={6}
+                  md={6}
+                  sm={6}
+                  xs={6}
+                  className="gap-4"
+                  style={{ display: "flex", justifyContent: "flex-end" }}
+                >
                   <Button
                     variant="success"
                     onClick={() => {
@@ -829,12 +839,12 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
             </Row>
           </Card>
         </Col>
-{/**
+        {/**
 Contenedor del mapa
  */}
 
-        <Col lg={8} md={12} sm={12} xs={12} style={{height:"100%"}} >
-          <Row style={{ width: "100%", height: "100%" }} >
+        <Col lg={8} md={12} sm={12} xs={12} style={{ height: "100%" }}>
+          <Row style={{ width: "100%", height: "100%" }}>
             <MapContainer
               center={position}
               zoom={13}
@@ -842,45 +852,36 @@ Contenedor del mapa
               style={{ width: "100%", height: "100%" }}
             >
               <ChangeMapView coords={position} />
-               <Circle
-                                            center={position}
-                                            radius={500}
-                                            
-                                            pathOptions={{
-                                              fillColor: "rgba(255,0,45,0.1)",
-                                              color: "rgba(255,23,45,0.2)",
-                                             
-                                            }}
-                                          >
-                                            
-                                          </Circle>
+              <Circle
+                center={position}
+                radius={500}
+                pathOptions={{
+                  fillColor: "rgba(255,0,45,0.1)",
+                  color: "rgba(255,23,45,0.2)",
+                }}
+              ></Circle>
               <LayersControl position="topright">
-              {/*
                 <LayersControl.BaseLayer name="Vista de satélite">
-                  <TileLayer
-                    url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
-                    attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
-                  />
+                  <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
                 </LayersControl.BaseLayer>
+                {/* Superposición: Nombres de calles (se puede activar/desactivar encima del satélite) */}
+                <LayersControl.Overlay
+                  checked
+                  name="Nombres de calles y ciudades"
+                >
+                  <>
+                    <TileLayer
+                      url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+                      opacity={1}
+                    />
+                  </>
+                </LayersControl.Overlay>
                 <LayersControl.BaseLayer checked name="Relieve">
                   <TileLayer
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
                 </LayersControl.BaseLayer>
-                */}
-                <LayersControl.BaseLayer name="Vista de satélite">
-                                      <TileLayer
-                                        url=" http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
-                                      
-                                      />
-                                    </LayersControl.BaseLayer>
-                                    <LayersControl.BaseLayer checked name="Relieve">
-                                      <TileLayer
-                                        
-                                        url="https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}"
-                                      />
-                                    </LayersControl.BaseLayer>
               </LayersControl>
 
               {unidades.map((alarma, index) => (
@@ -902,11 +903,12 @@ Contenedor del mapa
                     },
                   }}
                 >
-               
-                  <Tooltip   permanent={true}
-                                              direction="right"
-                                              offset={[0, 20]}
-                                              opacity={1}>
+                  <Tooltip
+                    permanent={true}
+                    direction="right"
+                    offset={[0, 20]}
+                    opacity={1}
+                  >
                     <label>{alarma.name}</label>
                   </Tooltip>
                 </Marker>

@@ -245,206 +245,224 @@ function Trends() {
   }, [dataFiltrada, estacionSeleccionada]);
 
   return (
-   <Container
-  fluid
-  style={{
-    height: "100%", // asegúrate que el padre permita este alto
-    display: "flex",
-    flexDirection: "column",
-    overflow: "hidden",
-    padding: 10,
-  }}
->
-  <Row style={{ flex: 1, overflow: "hidden" }}>
-    {/* Columna de estaciones */}
-    <Col lg={3} md={3} xs={12} sm={12} xl={3} style={{ height: "100%" }}>
-      <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <div
-          style={{
-            flex: 1,
-            overflowY: "auto",
-            padding: 10,
-            borderRadius: 4,
-          }}
-        >
-          <Table size="sm" responsive>
-            <thead className="tableHead">
-              <tr>
-                <th colSpan={5} className="tableHeader">
-                  Estación
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {estacionesBarchart.map((estacion, index) => (
-                <tr
-                  key={index}
-                  onClick={() =>
-                    setEstacionSeleccionada((prev) =>
-                      prev === estacion ? null : estacion
-                    )
-                  }
-                >
-                  <td
-                    colSpan={5}
-                    className="tableRow"
-                    style={{
-                      cursor: "pointer",
-                      backgroundColor:
-                        estacion === estacionSeleccionada
-                          ? "rgba(100,200,10,0.6)"
-                          : "#fff",
-                      color:
-                        estacion === estacionSeleccionada ? "#fff" : "#000",
-                    }}
-                  >
-                    {estacion}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      </Card>
-    </Col>
-
-    {/* Columna de gráfico y mapa */}
-    <Col lg={9} md={9} xs={12} sm={12} xl={9} style={{ height: "100%" }}>
-      <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-        <Card.Body style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-          <Row style={{ flex: 1 }}>
-            {/* Gráfico */}
-            <Col lg={6} md={6} xs={12} sm={12} style={{ display: "flex", flexDirection: "column" }}>
-              <div
-                style={{
-                  backgroundColor: "rgba(205,205,205,0.3)",
-                  flex: 1,
-                  borderRadius: 8,
-                  padding: 10,
-                  alignContent:"center"
-                }}
-                id="chart-container"
-              >
-                <h5 style={{ textAlign: "center" }}>
-                  {estacionSeleccionada ?? "Total de eventos por mes"}
-                </h5>
-                <ChartContainer
-                  dataset={dataFiltrada}
-                  xAxis={[{ scaleType: "band", dataKey: "mes" }]}
-                  series={[
-                    {
-                      type: "bar",
-                      dataKey: estacionSeleccionada ?? "total",
-                      label: estacionSeleccionada ?? "Total",
-                    },
-                  ]}
-                  sx={{
-                    height:"60%"
-                  }}
-                >
-                  <BarPlot barLabel="value" slots={{ barLabel: BarLabel }} />
-                  <ChartsXAxis />
-                  <ChartsYAxis />
-                  <ChartsTooltip />
-                </ChartContainer>
-              </div>
-            </Col>
-
-            {/* Mapa */}
-            <Col lg={6} md={6} xs={12} sm={12}>
-              <div
-                style={{
-                  height: "100%",
-                  borderRadius: 8,
-                  overflow: "hidden",
-                  backgroundColor: "rgba(255,255,255,0.9)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <MapContainer
-                  center={position}
-                  zoom={13}
-                  scrollWheelZoom={true}
-                  style={{ width: "100%", height: "100%" }}
-                >
-                  <ChangeMapView coords={position} />
-                  <LayersControl position="topright">
-                    <LayersControl.BaseLayer name="Vista de satélite">
-                      <TileLayer
-                        url=" http://www.google.cn/maps/vt?lyrs=s@189&gl=cn&x={x}&y={y}&z={z}"
-                      
-                      />
-                    </LayersControl.BaseLayer>
-                    <LayersControl.BaseLayer checked name="Relieve">
-                      <TileLayer
-                        
-                        url="https://mt1.google.com/vt/lyrs=r&x={x}&y={y}&z={z}"
-                      />
-                    </LayersControl.BaseLayer>
-                  </LayersControl>
-
-                  {eventos.map((alarma, index) => (
-                    <Marker
-                      key={index}
-                      position={[alarma.lat, alarma.lng]}
-                      icon={customIcon}
-                    >
-                      <Tooltip>
-                        <label>{alarma.name}</label>
-                      </Tooltip>
-                    </Marker>
-                  ))}
-
-                  {estacionSeleccionada && (
-                    <Circle
-                      center={position}
-                      radius={500}
-                      pathOptions={{
-                        fillColor: "rgba(255,0,45,0.1)",
-                        color: "rgba(255,23,45,0.2)",
-                      }}
-                    >
-                      <Tooltip
-                        permanent
-                        direction="right"
-                        offset={[0, 20]}
-                        opacity={1}
-                      >
-                        Eventos suscitados {totalEventosEstacion}
-                      </Tooltip>
-                    </Circle>
-                  )}
-                </MapContainer>
-              </div>
-            </Col>
-          </Row>
-
-          {/* Botones */}
-          <Row className="mt-3">
+    <Container
+      fluid
+      style={{
+        height: "100%", // asegúrate que el padre permita este alto
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+        padding: 10,
+      }}
+    >
+      <Row style={{ flex: 1, overflow: "hidden" }}>
+        {/* Columna de estaciones */}
+        <Col lg={3} md={3} xs={12} sm={12} xl={3} style={{ height: "100%" }}>
+          <Card
+            style={{ height: "100%", display: "flex", flexDirection: "column" }}
+          >
             <div
               style={{
+                flex: 1,
+                overflowY: "auto",
                 padding: 10,
-                display: "flex",
-                justifyContent: "center",
-                gap: 10,
+                borderRadius: 4,
               }}
             >
-              <Button onClick={handleExportPDF}
-               variant="outline-primary"
-              >Generar reporte</Button>
-              <Button
-               variant="outline-success"
-              >Exportar CSV</Button>
+              <Table size="sm" responsive>
+                <thead className="tableHead">
+                  <tr>
+                    <th colSpan={5} className="tableHeader">
+                      Estación
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {estacionesBarchart.map((estacion, index) => (
+                    <tr
+                      key={index}
+                      onClick={() =>
+                        setEstacionSeleccionada((prev) =>
+                          prev === estacion ? null : estacion
+                        )
+                      }
+                    >
+                      <td
+                        colSpan={5}
+                        className="tableRow"
+                        style={{
+                          cursor: "pointer",
+                          backgroundColor:
+                            estacion === estacionSeleccionada
+                              ? "rgba(100,200,10,0.6)"
+                              : "#fff",
+                          color:
+                            estacion === estacionSeleccionada ? "#fff" : "#000",
+                        }}
+                      >
+                        {estacion}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
-          </Row>
-        </Card.Body>
-      </Card>
-    </Col>
-  </Row>
-</Container>
+          </Card>
+        </Col>
 
+        {/* Columna de gráfico y mapa */}
+        <Col lg={9} md={9} xs={12} sm={12} xl={9} style={{ height: "100%" }}>
+          <Card
+            style={{ height: "100%", display: "flex", flexDirection: "column" }}
+          >
+            <Card.Body
+              style={{ flex: 1, display: "flex", flexDirection: "column" }}
+            >
+              <Row style={{ flex: 1 }}>
+                {/* Gráfico */}
+                <Col
+                  lg={6}
+                  md={6}
+                  xs={12}
+                  sm={12}
+                  style={{ display: "flex", flexDirection: "column" }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "rgba(205,205,205,0.3)",
+                      flex: 1,
+                      borderRadius: 8,
+                      padding: 10,
+                      alignContent: "center",
+                    }}
+                    id="chart-container"
+                  >
+                    <h5 style={{ textAlign: "center" }}>
+                      {estacionSeleccionada ?? "Total de eventos por mes"}
+                    </h5>
+                    <ChartContainer
+                      dataset={dataFiltrada}
+                      xAxis={[{ scaleType: "band", dataKey: "mes" }]}
+                      series={[
+                        {
+                          type: "bar",
+                          dataKey: estacionSeleccionada ?? "total",
+                          label: estacionSeleccionada ?? "Total",
+                        },
+                      ]}
+                      sx={{
+                        height: "60%",
+                      }}
+                    >
+                      <BarPlot
+                        barLabel="value"
+                        slots={{ barLabel: BarLabel }}
+                      />
+                      <ChartsXAxis />
+                      <ChartsYAxis />
+                      <ChartsTooltip />
+                    </ChartContainer>
+                  </div>
+                </Col>
+
+                {/* Mapa */}
+                <Col lg={6} md={6} xs={12} sm={12}>
+                  <div
+                    style={{
+                      height: "100%",
+                      borderRadius: 8,
+                      overflow: "hidden",
+                      backgroundColor: "rgba(255,255,255,0.9)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <MapContainer
+                      center={position}
+                      zoom={13}
+                      scrollWheelZoom={true}
+                      style={{ width: "100%", height: "100%" }}
+                    >
+                      <ChangeMapView coords={position} />
+                      <LayersControl position="topright">
+                        <LayersControl.BaseLayer name="Vista de satélite">
+                          <TileLayer url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}" />
+                        </LayersControl.BaseLayer>
+                        {/* Superposición: Nombres de calles (se puede activar/desactivar encima del satélite) */}
+                        <LayersControl.Overlay
+                          checked
+                          name="Nombres de calles y ciudades"
+                        >
+                          <TileLayer
+                            url="https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}"
+                            opacity={1}
+                          />
+                        </LayersControl.Overlay>
+                        <LayersControl.BaseLayer checked name="Relieve">
+                          <TileLayer
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                          />
+                        </LayersControl.BaseLayer>
+                      </LayersControl>
+                      {eventos.map((alarma, index) => (
+                        <Marker
+                          key={index}
+                          position={[alarma.lat, alarma.lng]}
+                          icon={customIcon}
+                        >
+                          <Tooltip>
+                            <label>{alarma.name}</label>
+                          </Tooltip>
+                        </Marker>
+                      ))}
+
+                      {estacionSeleccionada && (
+                        <Circle
+                          center={position}
+                          radius={500}
+                          pathOptions={{
+                            fillColor: "rgba(255,0,45,0.1)",
+                            color: "rgba(255,23,45,0.2)",
+                          }}
+                        >
+                          <Tooltip
+                            permanent
+                            direction="right"
+                            offset={[0, 20]}
+                            opacity={1}
+                          >
+                            Eventos suscitados {totalEventosEstacion}
+                          </Tooltip>
+                        </Circle>
+                      )}
+                    </MapContainer>
+                  </div>
+                </Col>
+              </Row>
+
+              {/* Botones */}
+              <Row className="mt-3">
+                <div
+                  style={{
+                    padding: 10,
+                    display: "flex",
+                    justifyContent: "center",
+                    gap: 10,
+                  }}
+                >
+                  <Button onClick={handleExportPDF} variant="outline-primary">
+                    Generar reporte
+                  </Button>
+                  <Button variant="outline-success">Exportar CSV</Button>
+                </div>
+              </Row>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
