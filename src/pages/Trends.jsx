@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext} from "react";
 import { Button, Col, Container, Row, Table } from "react-bootstrap";
-import { Document, Page, Image, pdf } from "@react-pdf/renderer";
-//import { BarChart } from "@mui/x-charts/BarChart";
+import { Document, Page, Image} from "@react-pdf/renderer";
+
 /**
  * importamos las librerias para el manego de la gráfica de barras
  */
@@ -374,6 +374,7 @@ Chart container
                   style={{ width: "100%", height: "100%" }}
                 >
                   <ChangeMapView coords={position} />
+                  
                   <LayersControl position="topright">
                     <LayersControl.BaseLayer name="Vista de satélite">
                       <TileLayer
@@ -401,11 +402,7 @@ Chart container
                             <label>{alarma.name}</label>
                           </Tooltip>
                         </Marker>
-                        <Circle
-                          center={[alarma.lat, alarma.lng]}
-                          radius={500}
-                          pathOptions={{ fillColor: "red", color: "red" }}
-                        />
+                     
                         {estacionSeleccionada != null ? (
                           <>
                             {" "}
@@ -414,7 +411,7 @@ Chart container
                               radius={500}
                               
                               pathOptions={{
-                                fillColor: "rgba(255,0,45,0.3)",
+                                fillColor: "rgba(255,0,45,0.1)",
                                 color: "rgba(255,23,45,0.2)",
                                
                               }}

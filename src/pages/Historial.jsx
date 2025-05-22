@@ -27,12 +27,39 @@ import ReactPaginate from "react-paginate";
 import MTooltip from "@mui/material/Tooltip";
 import dayjs from "dayjs";
 import GradingSharpIcon from "@mui/icons-material/GradingSharp";
-import PlagiarismSharpIcon from "@mui/icons-material/PlagiarismSharp";
+import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import VisibilitySharpIcon from "@mui/icons-material/VisibilitySharp";
 import AssignmentSharpIcon from "@mui/icons-material/AssignmentSharp";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-bootstrap/Modal";
 import { OTContext } from "../context/OTContext";
+import EmergencyShareIcon from "@mui/icons-material/EmergencyShare";
+import ReactDOMServer from "react-dom/server";
+import {
+  LayersControl,
+  MapContainer,
+  Marker,
+  TileLayer,
+  Tooltip,
+  useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+const iconMarkup = ReactDOMServer.renderToString(
+  <EmergencyShareIcon
+    style={{
+      color: "red",
+      fontSize: "40px",
+      filter: "drop-shadow(3px 3px 1px rgba(2, 2, 2, 0.95))",
+    }}
+  />
+);
+const customIcon = new L.DivIcon({
+  html: iconMarkup,
+  className: "", // para que no tenga estilos por defecto
+  iconSize: [32, 32],
+  iconAnchor: [16, 32], // ajusta si el ícono está desalineado
+});
 function Historial() {
   const { db1, userData } = useContext(UserContext);
   const [eventos, setEventos] = useState([]);
@@ -43,7 +70,9 @@ function Historial() {
   const [nonAck, setNonAck] = useState(0);
   const [caso, setCaso] = useState({});
   let navigate = useNavigate();
-
+  const [position, setPosition] = useState([]);
+  const [openMap, setOpenMap] = useState(false);
+  const CloseMap = () => setOpenMap(false);
   /**
    * Modal para cerrar el caso
    */
@@ -152,13 +181,18 @@ function Historial() {
   return (
     <Container
       fluid
-      style={{ height: "90vh", display: "flex", flexDirection: "column" }}
+      style={{
+        height: "80vh",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      }}
     >
-      <div ref={tablaRef} style={{ flexGrow: 1, overflowY: "auto" }}>
+      <div ref={tablaRef} style={{ flexGrow: 1, maxHeight: "70vh" }}>
         <Table hover size="sm">
           <thead className="tableHead">
             <tr>
-              <td colSpan={10} className="tableHeader">
+              <td colSpan={11} className="tableHeader">
                 <div
                   style={{
                     backgroundColor: "transparent",
@@ -267,6 +301,7 @@ function Historial() {
               <th>Usuario</th>
               <th>Telefono</th>
               <th>Email</th>
+              <th>Coord. Evento</th>
               <th>Atendido</th>
               <th>Acciones</th>
             </tr>
@@ -284,6 +319,20 @@ function Historial() {
                     <td>{evento.usuario}</td>
                     <td>{evento.telefono}</td>
                     <td>{evento.email}</td>
+                    {evento.latu != null ? (
+                      <td
+                        onClick={() => {
+                          setCaso(evento);
+                          setPosition([evento.latu, evento.longu]);
+                          setOpenMap(true);
+                        }}
+                      >
+                        {evento.latu}, {evento.longu}{" "}
+                        <TravelExploreIcon style={{ color: "green" }} />
+                      </td>
+                    ) : (
+                      <td></td>
+                    )}
                     <td
                       style={{
                         backgroundColor: evento.atendido
@@ -340,11 +389,10 @@ function Historial() {
                                 border: "none",
                               }}
                               onClick={(event) => {
-                                setEmisor(
-                                  {
-                                    nombre:userData.user,
-                                    email: userData.email,
-                              });
+                                setEmisor({
+                                  nombre: userData.user,
+                                  email: userData.email,
+                                });
                                 setDataEvento({
                                   detalles: evento.evento,
                                   usuario: evento.usuario,
@@ -612,6 +660,49 @@ function Historial() {
                 </div>
               </div>
             )}
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/**
+Modal para mostrar el mapa con la ubicación
+ */}
+      <Modal show={openMap} onHide={CloseMap} size="lg">
+        <Modal.Header closeButton>
+          <Modal.Title>Ubicación donde suscitó el evento</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div style={{ width: "100%", height: "70vh" }} className="pt-2">
+          <div>Usuario:{caso.usuario}, Teléfono.:{caso.telefono}</div>
+            <MapContainer
+              center={position}
+              zoom={18}
+              scrollWheelZoom={true}
+              style={{ width: "100%", height: "90%" }}
+            >
+              <LayersControl position="topright">
+                <LayersControl.BaseLayer name="Vista de satélite">
+                  <TileLayer
+                    url="https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}"
+                    attribution='&copy; <a href="https://www.google.com/maps">Google Maps</a>'
+                  />
+                </LayersControl.BaseLayer>
+                <LayersControl.BaseLayer checked name="Relieve">
+                  <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  />
+                </LayersControl.BaseLayer>
+              </LayersControl>
+
+              <Marker key={1} position={position} icon={customIcon}>
+                {/** 
+                  <Tooltip>
+                    <label>{evento.usuario}</label>
+                  </Tooltip>
+                  */}
+              </Marker>
+            </MapContainer>
           </div>
         </Modal.Body>
       </Modal>

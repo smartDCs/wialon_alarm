@@ -130,8 +130,7 @@ justify-content: space-between !important;
        
         border:none;
         text-align: center;
-        width: 100%;
-       
+    
        }
     .tableRow{
       background-color:rgb(255,255,255) ;
@@ -233,3 +232,13 @@ overflow-y: auto;
   
  
 }
+   .tableHeaderUser{
+        color:rgb(238,235,235) !important;
+        background-color: rgb(50,50,50) !important;
+       align-content: center;
+      
+        border:none;
+        text-align: center;
+      
+       font-size: small;
+       }

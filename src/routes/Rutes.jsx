@@ -11,6 +11,7 @@ import OrdenTrabajo from "../reports/OrdenTrabajo";
 import { Setup } from "../pages/Setup";
 import Trends from "../pages/Trends";
 import Report from "../reports/Report";
+import Users from "../pages/Users";
 
 function Rutes() {
   const { userData, loading } = useContext(UserContext);
@@ -44,6 +45,7 @@ function Rutes() {
       <Route path="/reporte_trabajo" element={isAuth ?<OrdenTrabajo/> : <Navigate to="/" />}/>
       <Route path="/trends" element={isAuth ?<Trends/> : <Navigate to="/" />}/>
       <Route path="/setup" element={isAuth ?<Setup/> : <Navigate to="/" />}/>
+       <Route path="/users" element={isAuth ?<Users/> : <Navigate to="/" />}/>
     </Routes>
   );
 }

@@ -9,6 +9,7 @@ import ReactDOMServer from "react-dom/server";
 import { toast } from "react-toastify";
 
 import {
+  Circle,
   LayersControl,
   MapContainer,
   Marker,
@@ -831,6 +832,18 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
               style={{ width: "100%", height: "100%" }}
             >
               <ChangeMapView coords={position} />
+               <Circle
+                                            center={position}
+                                            radius={500}
+                                            
+                                            pathOptions={{
+                                              fillColor: "rgba(255,0,45,0.1)",
+                                              color: "rgba(255,23,45,0.2)",
+                                             
+                                            }}
+                                          >
+                                            
+                                          </Circle>
               <LayersControl position="topright">
                 <LayersControl.BaseLayer name="Vista de satélite">
                   <TileLayer
@@ -865,7 +878,11 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
                     },
                   }}
                 >
-                  <Tooltip>
+               
+                  <Tooltip   permanent={true}
+                                              direction="right"
+                                              offset={[0, 20]}
+                                              opacity={1}>
                     <label>{alarma.name}</label>
                   </Tooltip>
                 </Marker>

@@ -17,6 +17,8 @@ import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import WarningAmberSharpIcon from "@mui/icons-material/WarningAmberSharp";
 import DoorbellSharpIcon from '@mui/icons-material/DoorbellSharp';
 import { UserContext } from "../context/UserContext";
+import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
+import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
 
 function NavBar() {
   const navigate = useNavigate();
@@ -150,6 +152,16 @@ function NavBar() {
             >
               <span style={{ color: "white", display: "flex" }}>
                 <TimelineSharpIcon /> Estadisticas
+              </span>
+            </Nav.Link>
+              <Nav.Link
+             onClick={(e) => {
+                e.preventDefault();
+                navigate("/users");
+              }}
+            >
+              <span style={{ color: "white", display: "flex" }}>
+                <PeopleAltIcon /> {" "}Usuarios
               </span>
             </Nav.Link>
             <NavDropdown
