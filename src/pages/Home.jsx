@@ -412,15 +412,21 @@ useEffect(()=>{
   }, [db1]);
 
   return (
-    <Container fluid className="m-0 p-0 ">
-      <Row className="m-0 p-0">
-        <Col lg={4} md={12} sm={12} xs={12} className="m-0 p-2 ">
+    <Container fluid  style={{
+    height: "100%", // asegúrate que el padre permita este alto
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    padding: 10,
+  }}>
+      <Row style={{height:"100%", display:"flex", flexDirection:"column"}}>
+        <Col lg={4} md={12} sm={12} xs={12} style={{height:"100%"}} >
           <Card
-            style={{ height: "92vh", padding: 10, overflowY: "auto", overflowX: "hidden" }}
+       style={{ height:"100%", padding:10}}
             bg="dark"
           >
             <div style={{ color: "white", padding:10 }}>Grupos de alarmas</div>
-            <Card style={{ maxHeight: "75vh", padding: 10, overflowY: "auto", overflowX: "hidden" }}>
+            <Card style={{ flexGrow:1, padding: 10, overflowY: "auto", overflowX: "hidden" }}>
               <Row>
                 <Accordion defaultActiveKey="0">
                   {gruposAlarmas.map((grupo, index) => {
@@ -823,8 +829,12 @@ en este punto mando a buscar las unidades pertenecientes al grupo seleccionado
             </Row>
           </Card>
         </Col>
-        <Col lg={8} md={12} sm={12} xs={12} className="m-0 p-0">
-          <Row style={{ width: "100%", height: "92vh" }} className="ps-4 pt-2">
+{/**
+Contenedor del mapa
+ */}
+
+        <Col lg={8} md={12} sm={12} xs={12} style={{height:"100%"}} >
+          <Row style={{ width: "100%", height: "100%" }} >
             <MapContainer
               center={position}
               zoom={13}
