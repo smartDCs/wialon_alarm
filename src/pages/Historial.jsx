@@ -10,6 +10,7 @@ import {
 import { useEffect, useState, useRef, useMemo, useContext } from "react";
 import {
   Button,
+  Card,
   Col,
   Container,
   Form,
@@ -182,296 +183,319 @@ function Historial() {
     <Container
       fluid
       style={{
-        height: "80vh",
+        height: "100%",
         display: "flex",
         flexDirection: "column",
         overflow: "hidden",
+        padding:10
       }}
     >
-      <div ref={tablaRef} style={{ flexGrow: 1, maxHeight: "70vh" }}>
-        <Table hover size="sm">
-          <thead className="tableHead">
-            <tr>
-              <td colSpan={11} className="tableHeader">
-                <div
-                  style={{
-                    backgroundColor: "transparent",
-                    width: "100%",
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-
-                    alignItems: "center",
-                    paddingLeft: "10px",
-                    paddingRight: "10px",
-                  }}
-                >
-                  <span className="divLogo">HISTORIAL DE EVENTOS</span>
-                  <span
-                    style={{
-                      backgroundColor: "transparent",
-                      color: "white",
-                      fontSize: "0.9rem",
-                    }}
-                    onClick={() => {
-                      setSearchTerm("true");
-                    }}
-                  >
-                    <VerifiedUserSharpIcon /> Atendidos: {ack}{" "}
-                  </span>
-                  <span
-                    style={{
-                      backgroundColor: "transparent",
-                      color: "white",
-                      fontSize: "0.9rem",
-                    }}
-                    onClick={() => {
-                      setSearchTerm("false");
-                    }}
-                  >
-                    <GppBadSharpIcon /> No atendidos: {nonAck}
-                  </span>
-                  <span
-                    style={{
-                      backgroundColor: "transparent",
-                      color: "white",
-                      fontSize: "0.9rem",
-                    }}
-                    onClick={() => {
-                      setSearchTerm(" ");
-                    }}
-                  >
-                    <PrivacyTipSharpIcon />
-                    Total: {eventos.length}{" "}
-                  </span>
-                  <span>
+      <Card style={{ flexGrow: 1, height: "100%", overflowY: "auto" }}>
+        <Card.Body>
+          <div ref={tablaRef} style={{ flexGrow: 1 }}>
+            <Table hover size="sm">
+              <thead className="tableHead">
+                <tr>
+                  <td colSpan={11} className="tableHeader">
                     <div
                       style={{
-                        width: "200px",
+                        backgroundColor: "transparent",
+                        width: "100%",
                         display: "flex",
+                        flexDirection: "row",
                         justifyContent: "space-between",
-                        fontSize: "0.9rem",
+
+                        alignItems: "center",
+                        paddingLeft: "10px",
+                        paddingRight: "10px",
                       }}
                     >
-                      <InputGroup>
-                        <InputGroup.Text>
-                          <SearchSharpIcon />
-                        </InputGroup.Text>
-                        <Form.Control
-                          type="text"
-                          placeholder="Buscar..."
-                          value={searchTerm}
-                          style={{ fontSize: "0.9rem" }}
-                          onChange={(e) => setSearchTerm(e.target.value)}
-                        />
-                      </InputGroup>
-                    </div>
-                  </span>
-                  <span
-                    style={{
-                      backgroundColor: "transparent",
-                      color: "white",
-                      fontSize: "0.9rem",
-                    }}
-                  >
-                    <CSVLink
-                      data={currentEvents}
-                      headers={headers}
-                      filename="Eventos reportados.csv"
-                      style={{
-                        textDecoration: "none",
-                        color: "white",
-                        fontSize: "0.9rem",
-                      }}
-                      target="blank"
-                    >
-                      <FileDownloadSharpIcon />
-                      Exportar a CSV
-                    </CSVLink>
-                  </span>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <th>#</th>
-              <th>Fecha</th>
-              <th>Estacion</th>
-              <th>Evento</th>
-              <th>Motivo</th>
-              <th>Usuario</th>
-              <th>Telefono</th>
-              <th>Email</th>
-              <th>Coord. Evento</th>
-              <th>Atendido</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          {currentEvents.length >= 1 ? (
-            <tbody style={{ fontSize: "9pt" }}>
-              {currentEvents.map((evento, index) => {
-                return (
-                  <tr key={index}>
-                    <td>{evento.index}</td>
-                    <td>{evento.fecha}</td>
-                    <td>{evento.estacion}</td>
-                    <td>{evento.evento}</td>
-                    <td>{evento.motivo}</td>
-                    <td>{evento.usuario}</td>
-                    <td>{evento.telefono}</td>
-                    <td>{evento.email}</td>
-                    {evento.latu != null ? (
-                      <td
+                      <span className="divLogo">HISTORIAL DE EVENTOS</span>
+                      <span
+                        style={{
+                          backgroundColor: "transparent",
+                          color: "white",
+                          fontSize: "0.9rem",
+                        }}
                         onClick={() => {
-                          setCaso(evento);
-                          setPosition([evento.latu, evento.longu]);
-                          setOpenMap(true);
+                          setSearchTerm("true");
                         }}
                       >
-                        {evento.latu}, {evento.longu}{" "}
-                        <TravelExploreIcon style={{ color: "green" }} />
-                      </td>
-                    ) : (
-                      <td></td>
-                    )}
-                    <td
-                      style={{
-                        backgroundColor: evento.atendido
-                          ? "rgb(100,200,100)"
-                          : "rgb(250,50,50)",
-                        color: "rgb(10,10,10)",
-                        textAlign: "center",
-
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {evento.atendido ? "Atendido" : "No atendido"}
-                    </td>
-                    <td>
-                      {evento.atendido ? (
-                        <MTooltip title="Ver detalles" placement="right" arrow>
-                          <button
-                            style={{
-                              backgroundColor: "transparent",
-                              color: "rgb(10,100,20)",
-                              border: "none",
-                            }}
+                        <VerifiedUserSharpIcon /> Atendidos: {ack}{" "}
+                      </span>
+                      <span
+                        style={{
+                          backgroundColor: "transparent",
+                          color: "white",
+                          fontSize: "0.9rem",
+                        }}
+                        onClick={() => {
+                          setSearchTerm("false");
+                        }}
+                      >
+                        <GppBadSharpIcon /> No atendidos: {nonAck}
+                      </span>
+                      <span
+                        style={{
+                          backgroundColor: "transparent",
+                          color: "white",
+                          fontSize: "0.9rem",
+                        }}
+                        onClick={() => {
+                          setSearchTerm(" ");
+                        }}
+                      >
+                        <PrivacyTipSharpIcon />
+                        Total: {eventos.length}{" "}
+                      </span>
+                      <span>
+                        <div
+                          style={{
+                            width: "200px",
+                            display: "flex",
+                            justifyContent: "space-between",
+                            fontSize: "0.9rem",
+                          }}
+                        >
+                          <InputGroup>
+                            <InputGroup.Text>
+                              <SearchSharpIcon />
+                            </InputGroup.Text>
+                            <Form.Control
+                              type="text"
+                              placeholder="Buscar..."
+                              value={searchTerm}
+                              style={{ fontSize: "0.9rem" }}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                            />
+                          </InputGroup>
+                        </div>
+                      </span>
+                      <span
+                        style={{
+                          backgroundColor: "transparent",
+                          color: "white",
+                          fontSize: "0.9rem",
+                        }}
+                      >
+                        <CSVLink
+                          data={currentEvents}
+                          headers={headers}
+                          filename="Eventos reportados.csv"
+                          style={{
+                            textDecoration: "none",
+                            color: "white",
+                            fontSize: "0.9rem",
+                          }}
+                          target="blank"
+                        >
+                          <FileDownloadSharpIcon />
+                          Exportar a CSV
+                        </CSVLink>
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <th>#</th>
+                  <th>Fecha</th>
+                  <th>Estacion</th>
+                  <th>Evento</th>
+                  <th>Motivo</th>
+                  <th>Usuario</th>
+                  <th>Telefono</th>
+                  <th>Email</th>
+                  <th>Coord. Evento</th>
+                  <th>Atendido</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              {currentEvents.length >= 1 ? (
+                <tbody style={{ fontSize: "9pt" }}>
+                  {currentEvents.map((evento, index) => {
+                    return (
+                      <tr key={index}>
+                        <td>{evento.index}</td>
+                        <td>{evento.fecha}</td>
+                        <td>{evento.estacion}</td>
+                        <td>{evento.evento}</td>
+                        <td>{evento.motivo}</td>
+                        <td>{evento.usuario}</td>
+                        <td>{evento.telefono}</td>
+                        <td>{evento.email}</td>
+                        {evento.latu != null ? (
+                          <td
                             onClick={() => {
                               setCaso(evento);
-                              setOpenModal(true);
+                              setPosition([evento.latu, evento.longu]);
+                              setOpenMap(true);
                             }}
                           >
-                            <VisibilitySharpIcon />
-                          </button>
-                        </MTooltip>
-                      ) : (
-                        <div style={{ display: "flex", flexDirection: "row" }}>
-                          <MTooltip title="Cerrar caso" placement="right" arrow>
-                            <button
-                              style={{
-                                backgroundColor: "transparent",
-                                color: "rgb(10,100,180)",
-                                border: "none",
-                              }}
-                              onClick={() => {
-                                setCaso(evento);
+                            {evento.latu}, {evento.longu}{" "}
+                            <TravelExploreIcon style={{ color: "green" }} />
+                          </td>
+                        ) : (
+                          <td></td>
+                        )}
+                        <td
+                          style={{
+                            backgroundColor: evento.atendido
+                              ? "rgb(100,200,100)"
+                              : "rgb(250,50,50)",
+                            color: "rgb(10,10,10)",
+                            textAlign: "center",
 
-                                setOpenModal(true);
-                              }}
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {evento.atendido ? "Atendido" : "No atendido"}
+                        </td>
+                        <td>
+                          {evento.atendido ? (
+                            <MTooltip
+                              title="Ver detalles"
+                              placement="right"
+                              arrow
                             >
-                              <GradingSharpIcon />
-                            </button>
-                          </MTooltip>
-                          <MTooltip title="Generar OT" placement="right" arrow>
-                            <button
-                              style={{
-                                backgroundColor: "transparent",
-                                color: "rgb(10,180,190)",
-                                border: "none",
-                              }}
-                              onClick={(event) => {
-                                setEmisor({
-                                  nombre: userData.user,
-                                  email: userData.email,
-                                });
-                                setDataEvento({
-                                  detalles: evento.evento,
-                                  usuario: evento.usuario,
-                                  cel: evento.telefono,
-                                  email: evento.email,
-                                  estacion: evento.estacion,
-                                  motivo: evento.motivo,
-                                  fecha: evento.fecha,
-                                  numeroOt: evento.index,
-                                });
+                              <button
+                                style={{
+                                  backgroundColor: "transparent",
+                                  color: "rgb(10,100,20)",
+                                  border: "none",
+                                }}
+                                onClick={() => {
+                                  setCaso(evento);
+                                  setOpenModal(true);
+                                }}
+                              >
+                                <VisibilitySharpIcon />
+                              </button>
+                            </MTooltip>
+                          ) : (
+                            <div
+                              style={{ display: "flex", flexDirection: "row" }}
+                            >
+                              <MTooltip
+                                title="Cerrar caso"
+                                placement="right"
+                                arrow
+                              >
+                                <button
+                                  style={{
+                                    backgroundColor: "transparent",
+                                    color: "rgb(10,100,180)",
+                                    border: "none",
+                                  }}
+                                  onClick={() => {
+                                    setCaso(evento);
 
-                                handleReport(event);
-                              }}
-                            >
-                              <AssignmentSharpIcon />
-                            </button>
-                          </MTooltip>
-                        </div>
-                      )}
+                                    setOpenModal(true);
+                                  }}
+                                >
+                                  <GradingSharpIcon />
+                                </button>
+                              </MTooltip>
+                              <MTooltip
+                                title="Generar OT"
+                                placement="right"
+                                arrow
+                              >
+                                <button
+                                  style={{
+                                    backgroundColor: "transparent",
+                                    color: "rgb(10,180,190)",
+                                    border: "none",
+                                  }}
+                                  onClick={(event) => {
+                                    setEmisor({
+                                      nombre: userData.user,
+                                      email: userData.email,
+                                    });
+                                    setDataEvento({
+                                      detalles: evento.evento,
+                                      usuario: evento.usuario,
+                                      cel: evento.telefono,
+                                      email: evento.email,
+                                      estacion: evento.estacion,
+                                      motivo: evento.motivo,
+                                      fecha: evento.fecha,
+                                      numeroOt: evento.index,
+                                    });
+
+                                    handleReport(event);
+                                  }}
+                                >
+                                  <AssignmentSharpIcon />
+                                </button>
+                              </MTooltip>
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              ) : (
+                <tbody>
+                  <tr>
+                    <td colSpan={9} style={{ textAlign: "center" }}>
+                      No se encontraron datos
                     </td>
                   </tr>
-                );
-              })}
-            </tbody>
-          ) : (
-            <tbody>
-              <tr>
-                <td colSpan={9} style={{ textAlign: "center" }}>
-                  No se encontraron datos
-                </td>
-              </tr>
-            </tbody>
-          )}
-        </Table>
-      </div>
+                </tbody>
+              )}
+            </Table>
+          </div>
 
-      {/** Paginacion */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "end",
-          alignItems: "center",
-          padding: "8px",
-          backgroundColor: "#fff",
-          height: "60px", // altura fija para paginación
-          borderTop: "1px solid #ccc",
-        }}
-      >
-        <label style={{ padding: "8px 8px" }}>Filas por página </label>
-        <Form.Select
-          style={{ width: "5rem", height: "2rem", marginTop: "3px" }}
-          size="sm"
-          value={eventsPerPage}
-          onChange={(e) => {
-            setEventsPerPage(Number(e.target.value));
-            setCurrentPage(0); // Reiniciar a la primera página
-          }}
-        >
-          <option>5</option>
-          <option>10</option>
-          <option>15</option>
-          <option>30</option>
-          <option>100</option>
-        </Form.Select>
-        <ReactPaginate
-          previousLabel={"Anterior"}
-          nextLabel={"Siguiente"}
-          breakLabel={"..."}
-          pageCount={pageCount}
-          marginPagesDisplayed={2}
-          pageRangeDisplayed={5}
-          onPageChange={handlePageClick}
-          containerClassName={"pagination"}
-          subContainerClassName={"pages pagination"}
-          activeClassName={"active"}
-          forcePage={currentPage}
-        />
-      </div>
-
+          {/** Paginacion */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "end",
+          
+           alignItems:"start",
+              padding: "8px",
+             
+              height: "60px", // altura fija para paginación
+              borderTop: "1px solid #ccc",
+              
+            }}
+          >
+          
+              <label>Filas por página </label>
+              <Form.Select
+                style={{ width: "5rem" }}
+                size="sm"
+                value={eventsPerPage}
+                onChange={(e) => {
+                  setEventsPerPage(Number(e.target.value));
+                  setCurrentPage(0); // Reiniciar a la primera página
+                }}
+              >
+                <option>5</option>
+                <option>10</option>
+                <option>15</option>
+                <option>30</option>
+                <option>100</option>
+              </Form.Select>
+           
+            <ReactPaginate
+              previousLabel={"Anterior"}
+              nextLabel={"Siguiente"}
+              breakLabel={"..."}
+              pageCount={pageCount}
+              marginPagesDisplayed={2}
+              pageRangeDisplayed={5}
+              onPageChange={handlePageClick}
+              containerClassName={"pagination"}
+              subContainerClassName={"pages pagination"}
+              activeClassName={"active"}
+              forcePage={currentPage}
+              
+            />
+          </div>
+        </Card.Body>
+      </Card>
       {/**
   Modal para cerrar el caso
    */}
@@ -673,7 +697,9 @@ Modal para mostrar el mapa con la ubicación
         </Modal.Header>
         <Modal.Body>
           <div style={{ width: "100%", height: "70vh" }} className="pt-2">
-          <div>Usuario:{caso.usuario}, Teléfono.:{caso.telefono}</div>
+            <div>
+              Usuario:{caso.usuario}, Teléfono.:{caso.telefono}
+            </div>
             <MapContainer
               center={position}
               zoom={18}

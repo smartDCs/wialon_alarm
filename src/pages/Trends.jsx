@@ -1,6 +1,6 @@
-import { useState, useEffect, useContext} from "react";
-import { Button, Col, Container, Row, Table } from "react-bootstrap";
-import { Document, Page, Image} from "@react-pdf/renderer";
+import { useState, useEffect, useContext } from "react";
+import { Button, Card, Col, Container, Row, Table } from "react-bootstrap";
+import { Document, Page, Image } from "@react-pdf/renderer";
 
 /**
  * importamos las librerias para el manego de la gráfica de barras
@@ -93,9 +93,7 @@ function BarLabel(props) {
 }
 
 function Trends() {
-  
- 
-  const {changeGraph}=useContext(ReportContext)
+  const { changeGraph } = useContext(ReportContext);
   const { db1 } = useContext(UserContext);
   const [eventos, setEventos] = useState([]);
   const [dataBar, setDataBar] = useState([]);
@@ -103,7 +101,7 @@ function Trends() {
   const navigate = useNavigate();
   const [estacionSeleccionada, setEstacionSeleccionada] = useState(null);
   const [position, setPosition] = useState([-0.933712, -78.614649]);
-const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
+  const [totalEventosEstacion, setTotalEventosEstacion] = useState(0);
   /**
    * Custom icon para el mapa
    * @returns
@@ -126,20 +124,18 @@ const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
     iconAnchor: [16, 32], // ajusta si el ícono está desalineado
   });
 
-
   const MyPDFDocument = ({ chartImage }) => (
     <Document>
       <Page size="A4">
-     
         <Image src={chartImage} style={{ width: "500px", height: "auto" }} />
       </Page>
     </Document>
   );
   const handleExportPDF = async () => {
     const chartImage = await exportGraphAsImage();
-  changeGraph(chartImage);
+    changeGraph(chartImage);
 
-  navigate('/report')
+    navigate("/report");
   };
 
   /**
@@ -158,11 +154,11 @@ const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
    * Método para convertir el gráfico de barras en imagen
    */
   const exportGraphAsImage = async () => {
-    const html2canvas = (await import('html2canvas')).default;
+    const html2canvas = (await import("html2canvas")).default;
     const chartElement = document.getElementById("chart-container");
     const canvas = await html2canvas(chartElement);
-     const dataUrl = canvas.toDataURL("image/png");
-     console.log("data url",dataUrl)
+    const dataUrl = canvas.toDataURL("image/png");
+    console.log("data url", dataUrl);
     return dataUrl;
   };
 
@@ -224,7 +220,6 @@ const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
     : calcularTotalPorMes(dataBar);
 
   useEffect(() => {
-   
     if (estacionSeleccionada != null) {
       const eventosFiltrados = eventos.filter(
         (evento) => evento.estacion === estacionSeleccionada
@@ -233,139 +228,140 @@ const [totalEventosEstacion,setTotalEventosEstacion]=useState(0);
       setPosition([eventosFiltrados[0].lat, eventosFiltrados[0].lng]);
     }
   }, [estacionSeleccionada]);
-  
+
   useEffect(() => {
     if (!estacionSeleccionada) return;
-  
+
     let totalEventos = 0;
-  
+
     dataFiltrada.forEach((dato) => {
       // Accede dinámicamente al valor por nombre de estación
       if (dato[estacionSeleccionada]) {
         totalEventos += dato[estacionSeleccionada];
       }
     });
-  
-   
-    setTotalEventosEstacion(totalEventos)
+
+    setTotalEventosEstacion(totalEventos);
   }, [dataFiltrada, estacionSeleccionada]);
 
   return (
-    <Container fluid>
-      <Row>
-        <Col lg={3} md={3} xs={12} sm={12} xl={3}>
-          <Row className="justify-content-center ">
-            <label style={{ color: "white" }}>Alarmas</label>
-            <div
-              style={{
-                borderRadius: 8,
-                overflowY: "auto",
-                maxHeight: "70vh",
-              }}
-            >
-              {/**
-Mostramos las estaciones de alarmas
- */}
-              <Table size="sm">
-                <thead className="tableHead">
-                  <tr>
-                    <th colSpan={5} className="tableHeader">
-                      Estación
-                    </th>
-                  </tr>
-                </thead>
-                <tbody style={{ width: "100%" }}>
-                  {estacionesBarchart.map((estacion, index) => {
-                    return (
-                      <tr
-                        key={index}
-                        onClick={() => {
-                          setEstacionSeleccionada((prev) =>
-                            prev === estacion ? null : estacion
-                          );
-                        }}
-                      >
-                        <td
-                          colSpan={5}
-                          className="tableRow"
-                          style={{
-                            cursor: "pointer",
-                            backgroundColor:
-                              estacion === estacionSeleccionada
-                                ? "rgba(100,200,10,0.6)"
-                                : "rgb(255,255,255)",
-                            color:
-                              estacion === estacionSeleccionada
-                                ? "white"
-                                : "black",
-                          }}
-                        >
-                          {estacion}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </Table>
-            </div>
-          </Row>
-        </Col>
-
-        <Col lg={9} md={9} xs={12} sm={12} xl={9}>
-          <Row>
-            <Col lg={6} md={6} xs={12} sm={12}>
-              <Row>
-                {/**
-Chart container
- */}
-                <label style={{ color: "white" }}>Índice de seguridad</label>
-                <div
-                  style={{
-                    backgroundColor: "rgba(255,255,255,0.9)",
-                    padding: 20,
-                    borderRadius: 8,
-                    height: "70vh",
-                  }}
-                  id="chart-container"
+   <Container
+  fluid
+  style={{
+    height: "100%", // asegúrate que el padre permita este alto
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+    padding: 10,
+  }}
+>
+  <Row style={{ flex: 1, overflow: "hidden" }}>
+    {/* Columna de estaciones */}
+    <Col lg={3} md={3} xs={12} sm={12} xl={3} style={{ height: "100%" }}>
+      <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: 10,
+            borderRadius: 4,
+          }}
+        >
+          <Table size="sm" responsive>
+            <thead className="tableHead">
+              <tr>
+                <th colSpan={5} className="tableHeader">
+                  Estación
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {estacionesBarchart.map((estacion, index) => (
+                <tr
+                  key={index}
+                  onClick={() =>
+                    setEstacionSeleccionada((prev) =>
+                      prev === estacion ? null : estacion
+                    )
+                  }
                 >
-                  <h5 style={{ textAlign: "center", marginBottom: 10 }}>
-                    {estacionSeleccionada
-                      ? `${estacionSeleccionada}`
-                      : "Total de eventos por mes"}
-                  </h5>
-                  <ChartContainer
-                    dataset={dataFiltrada}
-                    xAxis={[{ scaleType: "band", dataKey: "mes" }]}
-                    series={[
-                      {
-                        type: "bar",
-                        dataKey: estacionSeleccionada ?? "total",
-                        label: estacionSeleccionada ?? "Total",
-                      },
-                    ]}
-                  
+                  <td
+                    colSpan={5}
+                    className="tableRow"
+                    style={{
+                      cursor: "pointer",
+                      backgroundColor:
+                        estacion === estacionSeleccionada
+                          ? "rgba(100,200,10,0.6)"
+                          : "#fff",
+                      color:
+                        estacion === estacionSeleccionada ? "#fff" : "#000",
+                    }}
                   >
-                    <BarPlot barLabel="value" slots={{ barLabel: BarLabel }} />
-                    <ChartsXAxis />
-                    <ChartsYAxis />
-                    <ChartsTooltip />
-                  </ChartContainer>
-                </div>
-              </Row>
-            </Col>
+                    {estacion}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      </Card>
+    </Col>
 
-            <Col lg={6} md={6} xs={12} sm={12}>
-              <label style={{ color: "white" }}></label>
+    {/* Columna de gráfico y mapa */}
+    <Col lg={9} md={9} xs={12} sm={12} xl={9} style={{ height: "100%" }}>
+      <Card style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+        <Card.Body style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+          <Row style={{ flex: 1 }}>
+            {/* Gráfico */}
+            <Col lg={6} md={6} xs={12} sm={12} style={{ display: "flex", flexDirection: "column" }}>
               <div
                 style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  height: "70vh",
-                  backgroundColor: "rgba(255,255,255,0.9)",
+                  backgroundColor: "rgba(205,205,205,0.3)",
+                  flex: 1,
                   borderRadius: 8,
+                  padding: 10,
+                  alignContent:"center"
                 }}
-                
+                id="chart-container"
+              >
+                <h5 style={{ textAlign: "center" }}>
+                  {estacionSeleccionada ?? "Total de eventos por mes"}
+                </h5>
+                <ChartContainer
+                  dataset={dataFiltrada}
+                  xAxis={[{ scaleType: "band", dataKey: "mes" }]}
+                  series={[
+                    {
+                      type: "bar",
+                      dataKey: estacionSeleccionada ?? "total",
+                      label: estacionSeleccionada ?? "Total",
+                    },
+                  ]}
+                  sx={{
+                    height:"60%"
+                  }}
+                >
+                  <BarPlot barLabel="value" slots={{ barLabel: BarLabel }} />
+                  <ChartsXAxis />
+                  <ChartsYAxis />
+                  <ChartsTooltip />
+                </ChartContainer>
+              </div>
+            </Col>
+
+            {/* Mapa */}
+            <Col lg={6} md={6} xs={12} sm={12}>
+              <div
+                style={{
+                  height: "100%",
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  backgroundColor: "rgba(255,255,255,0.9)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
               >
                 <MapContainer
                   center={position}
@@ -374,7 +370,6 @@ Chart container
                   style={{ width: "100%", height: "100%" }}
                 >
                   <ChangeMapView coords={position} />
-                  
                   <LayersControl position="topright">
                     <LayersControl.BaseLayer name="Vista de satélite">
                       <TileLayer
@@ -390,51 +385,44 @@ Chart container
                     </LayersControl.BaseLayer>
                   </LayersControl>
 
-                  {eventos.map((alarma, index) => {
-                    return (
-                      <>
-                        <Marker
-                          key={index}
-                          position={[alarma.lat, alarma.lng]}
-                          icon={customIcon}
-                        >
-                          <Tooltip>
-                            <label>{alarma.name}</label>
-                          </Tooltip>
-                        </Marker>
-                     
-                        {estacionSeleccionada != null ? (
-                          <>
-                            {" "}
-                            <Circle
-                              center={position}
-                              radius={500}
-                              
-                              pathOptions={{
-                                fillColor: "rgba(255,0,45,0.1)",
-                                color: "rgba(255,23,45,0.2)",
-                               
-                              }}
-                            >
-                              <Tooltip
-                                permanent={true}
-                                direction="right"
-                                offset={[0, 20]}
-                                opacity={1}
-                              >
-                                Eventos sucitados {totalEventosEstacion}
-                              </Tooltip>
-                            </Circle>
-                          </>
-                        ) : null}
-                      </>
-                    );
-                  })}
+                  {eventos.map((alarma, index) => (
+                    <Marker
+                      key={index}
+                      position={[alarma.lat, alarma.lng]}
+                      icon={customIcon}
+                    >
+                      <Tooltip>
+                        <label>{alarma.name}</label>
+                      </Tooltip>
+                    </Marker>
+                  ))}
+
+                  {estacionSeleccionada && (
+                    <Circle
+                      center={position}
+                      radius={500}
+                      pathOptions={{
+                        fillColor: "rgba(255,0,45,0.1)",
+                        color: "rgba(255,23,45,0.2)",
+                      }}
+                    >
+                      <Tooltip
+                        permanent
+                        direction="right"
+                        offset={[0, 20]}
+                        opacity={1}
+                      >
+                        Eventos suscitados {totalEventosEstacion}
+                      </Tooltip>
+                    </Circle>
+                  )}
                 </MapContainer>
               </div>
             </Col>
           </Row>
-          <Row>
+
+          {/* Botones */}
+          <Row className="mt-3">
             <div
               style={{
                 padding: 10,
@@ -443,19 +431,16 @@ Chart container
                 gap: 10,
               }}
             >
-              <Button 
-              onClick={()=>{
-             handleExportPDF();
-                
-                
-              }}
-              >Generar reporte </Button>
-              <Button>Exportar csv </Button>
+              <Button onClick={handleExportPDF}>Generar reporte</Button>
+              <Button>Exportar CSV</Button>
             </div>
           </Row>
-        </Col>
-      </Row>
-    </Container>
+        </Card.Body>
+      </Card>
+    </Col>
+  </Row>
+</Container>
+
   );
 }
 

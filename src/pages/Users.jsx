@@ -79,10 +79,13 @@ function Users() {
   };
 
   return (
-    <Container fluid style={{ padding: 20 }}>
-      <Row>
-        <Col lg={4} md={4} sm={12} xs={12}>
-          <Card>
+    <Container fluid style={{ padding: 20, height: "100%" }}>
+      <Row style={{ height: "100%" }}>
+        {/**
+      Columna con los inputs para crear un nuevo usuario
+       */}
+        <Col lg={4} md={4} sm={12} xs={12} style={{ height: "100%" }}>
+          <Card style={{ height: "100%" }}>
             <Card.Body style={{ padding: 20 }}>
               <Row>
                 <Col lg={12} md={12} sm={12} xs={12}>
@@ -131,34 +134,43 @@ function Users() {
           </Card>
         </Col>
         {/**
-        Tabla con la lista de usuarios
+           Columna con la tabla de la lista de usuarios
          */}
-        <Col lg={8} md={8} sm={12} xs={12}>
-          <Card>
-            <Card.Body>
+        <Col lg={8} md={8} sm={12} xs={12} style={{ height: "100%" }}>
+          <Card style={{ height: "100%" }}>
+            <Card.Body
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                height: "100%",
+              }}
+            >
               <Row>
-                <Row>
-                  <label>Todos los usuarios registrados</label>
-                </Row>
-                <Row>
-                  <Col lg={5} md={5} sm={12} xs={12}>
-                    <InputGroup>
-                      <InputGroup.Text>
-                        <SearchSharpIcon />
-                      </InputGroup.Text>
-                      <Form.Control
-                        type="text"
-                        placeholder="Buscar..."
-                        value={searchTerm}
-                        style={{ fontSize: "0.9rem" }}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                      />
-                    </InputGroup>
-                  </Col>
-                
-                  <Col lg={7} md={7} sm={12} xs={12}>
-                  <div style={{justifyContent:"end", display:"flex"}}>
-                      <Button
+                <label>Todos los usuarios registrados</label>
+              </Row>
+              {/**
+              Filtro de búsqueda y botones para importar y exportar
+               */}
+
+              <Row style={{ paddingBottom: 10 }}>
+                <Col lg={5} md={5} sm={12} xs={12}>
+                  <InputGroup>
+                    <InputGroup.Text>
+                      <SearchSharpIcon />
+                    </InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      placeholder="Buscar..."
+                      value={searchTerm}
+                      style={{ fontSize: "0.9rem" }}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </InputGroup>
+                </Col>
+
+                <Col lg={7} md={7} sm={12} xs={12}>
+                  <div style={{ justifyContent: "end", display: "flex" }}>
+                    <Button
                       variant="outline-primary"
                       onClick={importarCsv}
                       className="me-2"
@@ -179,77 +191,95 @@ function Users() {
                       style={{ display: "none" }}
                     />
                   </div>
-                  
-                  </Col>
-                </Row>
+                </Col>
               </Row>
 
-              {/* Tabla */}
-              <Table hover striped responsive size="sm">
-                <thead>
-                  <tr>
-                    <th className="tableHeaderUser" >Item</th>
-                    <th className="tableHeaderUser">Nombres</th>
-                    <th className="tableHeaderUser">Teléfono</th>
-                    <th className="tableHeaderUser">Email</th>
-                    <th className="tableHeaderUser">Dirección</th>
-                    <th className="tableHeaderUser">Estacióm de alarma</th>
-                    <th className="tableHeaderUser">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {usuariosPagina.length > 0 ? (
-                    usuariosPagina.map((usuario, index) => (
-                      <tr key={index}>
-                        <td className="tableRow">{usuario.item}</td>
-                        <td className="tableRow">{usuario.nombres}</td>
-                        <td className="tableRow">{usuario.telefono}</td>
-                        <td className="tableRow">{usuario.email}</td>
-                        <td className="tableRow">{usuario.direccion}</td>
-                        <td className="tableRow">{usuario.barrio}</td>
-                        <td>
-                        <div style={{display:"flex", justifyContent:"space-between"}}>
-                           <Button variant="link" size="sm">
-                            <EditNoteIcon />
-                          </Button>
-                          <Button variant="link" size="sm">
-                            <DeleteSweepIcon />
-                          </Button>
-                        </div>
-                         
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
+              {/**
+              Tabla con los datos de los usuarios
+               */}
+              <Row
+                style={{
+                  flexGrow: 1,
+                  overflowY: "auto",
+                }}
+              >
+                {/* Tabla */}
+                <Table
+                  hover
+                  striped
+                  responsive
+                  size="sm"
+                  style={{ maxHeight: "100%" }}
+                >
+                  <thead className="tableHead">
                     <tr>
-                      <td colSpan={7}>No se encontraron datos</td>
+                      <th className="tableHeaderUser">Item</th>
+                      <th className="tableHeaderUser">Nombres</th>
+                      <th className="tableHeaderUser">Teléfono</th>
+                      <th className="tableHeaderUser">Email</th>
+                      <th className="tableHeaderUser">Dirección</th>
+                      <th className="tableHeaderUser">Estacióm de alarma</th>
+                      <th className="tableHeaderUser">Acciones</th>
                     </tr>
-                  )}
-                </tbody>
-              </Table>
+                  </thead>
+                  <tbody>
+                    {usuariosPagina.length > 0 ? (
+                      usuariosPagina.map((usuario, index) => (
+                        <tr key={index}>
+                          <td className="tableRow">{usuario.item}</td>
+                          <td className="tableRow">{usuario.nombres}</td>
+                          <td className="tableRow">{usuario.telefono}</td>
+                          <td className="tableRow">{usuario.email}</td>
+                          <td className="tableRow">{usuario.direccion}</td>
+                          <td className="tableRow">{usuario.barrio}</td>
+                          <td>
+                            <div
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <Button variant="link" size="sm">
+                                <EditNoteIcon />
+                              </Button>
+                              <Button variant="link" size="sm">
+                                <DeleteSweepIcon />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={7}>No se encontraron datos</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </Table>
 
-              {/* Paginación */}
-              {usuariosFiltrados.length > itemsPerPage && (
-                <Pagination className="justify-content-center">
-                  <Pagination.Prev
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1}
-                  />
-                  {Array.from({ length: totalPages }).map((_, i) => (
-                    <Pagination.Item
-                      key={i + 1}
-                      active={i + 1 === currentPage}
-                      onClick={() => handlePageChange(i + 1)}
-                    >
-                      {i + 1}
-                    </Pagination.Item>
-                  ))}
-                  <Pagination.Next
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                  />
-                </Pagination>
-              )}
+                {/* Paginación */}
+                {usuariosFiltrados.length > itemsPerPage && (
+                  <Pagination className="justify-content-center">
+                    <Pagination.Prev
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    />
+                    {Array.from({ length: totalPages }).map((_, i) => (
+                      <Pagination.Item
+                        key={i + 1}
+                        active={i + 1 === currentPage}
+                        onClick={() => handlePageChange(i + 1)}
+                      >
+                        {i + 1}
+                      </Pagination.Item>
+                    ))}
+                    <Pagination.Next
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    />
+                  </Pagination>
+                )}
+              </Row>
             </Card.Body>
           </Card>
         </Col>
