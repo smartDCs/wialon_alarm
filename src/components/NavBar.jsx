@@ -7,18 +7,18 @@ import { useContext, useEffect, useState } from "react";
 import "../styles/Styles.css";
 import LoginIcon from "@mui/icons-material/Login";
 import LogoutIcon from "@mui/icons-material/Logout";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { signOut } from "firebase/auth";
 import logo from "../assets/images/logo3.png";
 
-import TimelineSharpIcon from '@mui/icons-material/TimelineSharp';
+import TimelineSharpIcon from "@mui/icons-material/TimelineSharp";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import WarningAmberSharpIcon from "@mui/icons-material/WarningAmberSharp";
-import DoorbellSharpIcon from '@mui/icons-material/DoorbellSharp';
+import DoorbellSharpIcon from "@mui/icons-material/DoorbellSharp";
 import { UserContext } from "../context/UserContext";
-import OnlinePredictionIcon from '@mui/icons-material/OnlinePrediction';
-import PeopleAltIcon from '@mui/icons-material/PeopleAlt';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 
 function NavBar() {
   const navigate = useNavigate();
@@ -98,9 +98,7 @@ function NavBar() {
             }}
           >
             <span>
-              <div
-                className="divLogo"
-              >
+              <div className="divLogo">
                 <label className="ps-2">telegrafia</label>
               </div>
             </span>
@@ -122,7 +120,7 @@ function NavBar() {
                 <DoorbellSharpIcon /> Inicio
               </span>
             </Nav.Link>
-{/*
+            {/*
             <Nav.Link
               onClick={(e) => {
                 e.preventDefault();
@@ -135,7 +133,7 @@ function NavBar() {
             </Nav.Link>
 */}
             <Nav.Link
-             onClick={(e) => {
+              onClick={(e) => {
                 e.preventDefault();
                 navigate("/historial");
               }}
@@ -145,7 +143,7 @@ function NavBar() {
               </span>
             </Nav.Link>
             <Nav.Link
-             onClick={(e) => {
+              onClick={(e) => {
                 e.preventDefault();
                 navigate("/trends");
               }}
@@ -154,14 +152,14 @@ function NavBar() {
                 <TimelineSharpIcon /> Estadisticas
               </span>
             </Nav.Link>
-              <Nav.Link
-             onClick={(e) => {
+            <Nav.Link
+              onClick={(e) => {
                 e.preventDefault();
                 navigate("/users");
               }}
             >
               <span style={{ color: "white", display: "flex" }}>
-                <PeopleAltIcon /> {" "}Usuarios
+                <PeopleAltIcon /> Abonados
               </span>
             </Nav.Link>
             <NavDropdown
@@ -192,9 +190,19 @@ function NavBar() {
               </NavDropdown.Item>
               <NavDropdown.Item
                 onClick={(e) => {
-                e.preventDefault();
-                navigate("/setup");
-              }}
+                  e.preventDefault();
+                  navigate("/createUser");
+                }}
+              >
+                <PersonAddIcon />
+                Crear usuario
+              </NavDropdown.Item>
+
+              <NavDropdown.Item
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate("/setup");
+                }}
               >
                 <SettingsIcon />
                 Configuración

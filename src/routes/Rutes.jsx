@@ -12,6 +12,7 @@ import { Setup } from "../pages/Setup";
 import Trends from "../pages/Trends";
 import Report from "../reports/Report";
 import Users from "../pages/Users";
+import CreateUser from "../pages/CreateUser";
 
 function Rutes() {
   const { userData, loading } = useContext(UserContext);
@@ -46,6 +47,7 @@ function Rutes() {
       <Route path="/trends" element={isAuth ?<Trends/> : <Navigate to="/" />}/>
       <Route path="/setup" element={isAuth ?<Setup/> : <Navigate to="/" />}/>
        <Route path="/users" element={isAuth ?<Users/> : <Navigate to="/" />}/>
+        <Route path="/createUser" element={isAuth ?<CreateUser/> : <Navigate to="/" />}/>
     </Routes>
   );
 }

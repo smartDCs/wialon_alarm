@@ -251,7 +251,7 @@ function Trends() {
         height: "100%", // asegúrate que el padre permita este alto
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
+        overflow:"hidden",
         padding: 10,
       }}
     >

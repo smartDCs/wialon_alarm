@@ -41,8 +41,7 @@ import {
   MapContainer,
   Marker,
   TileLayer,
-  Tooltip,
-  useMap,
+ 
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -118,7 +117,7 @@ function Historial() {
     }
   };
   /**
-   * leemos ala base de datos en tiempo real
+   * leemos la base de datos en tiempo real
    */
 
   useEffect(() => {

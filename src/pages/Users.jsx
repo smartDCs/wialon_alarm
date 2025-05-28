@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useContext, useEffect } from "react";
 import {
   Card,
   Container,
@@ -9,15 +9,21 @@ import {
   Row,
   Col,
   InputGroup,
+
 } from "react-bootstrap";
+import MTooltip from "@mui/material/Tooltip";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
 import PublishIcon from "@mui/icons-material/Publish";
 import FileDownloadSharpIcon from "@mui/icons-material/FileDownloadSharp";
 import SearchSharpIcon from "@mui/icons-material/SearchSharp";
 import Papa from "papaparse";
-
+import { UserContext } from "../context/UserContext";
+import { orderByChild, query, ref, onValue } from "firebase/database";
+import HowToRegIcon from "@mui/icons-material/HowToReg";
+import logo from "../assets/images/alcaldiah.png";
 function Users() {
+  const { db1 } = useContext(UserContext);
   const fileInputRef = useRef(null);
   const [usuarios, setUsuarios] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,6 +83,29 @@ function Users() {
   const handlePageChange = (page) => {
     if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
+  /**
+   * Leemos la base de datos de abonados
+   */
+  useEffect(() => {
+    const abonados = ref(db1, "abonados");
+    const queryAbonados = query(abonados, orderByChild("entidad"));
+    onValue(queryAbonados, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        const usuariosArray = Object.keys(data).map((key, index) => ({
+          item: index + 1,
+          nombres: data[key].user || "N/A",
+          telefono: data[key].phone || "N/A",
+          email: data[key].email || "N/A",
+          direccion: data[key].direccion || "N/A",
+          barrio: data[key].alarmStation || "N/A",
+          enabled: data[key].enabled,
+        }));
+        console.log("usuarios", usuariosArray);
+        setUsuarios(usuariosArray);
+      }
+    });
+  }, [db1]);
 
   return (
     <Container fluid style={{ padding: 20, height: "100%" }}>
@@ -114,13 +143,13 @@ function Users() {
                 </Col>
               </Row>
               <Row>
-                <Col lg={4} md={4} sm={12} xs={12}>
+                <Col lg={4} md={12} sm={12} xs={12}>
                   <Form.Group>
                     <Form.Label>Teléfono:</Form.Label>
                     <Form.Control type="text" placeholder="0987654321" />
                   </Form.Group>
                 </Col>
-                <Col lg={8} md={8} sm={12} xs={12}>
+                <Col lg={8} md={12} sm={12} xs={12}>
                   <Form.Group>
                     <Form.Label>Estación de alarma:</Form.Label>
                     <Form.Control type="text" placeholder="LA MERCED" />
@@ -130,8 +159,12 @@ function Users() {
               <Row style={{ paddingTop: 20 }}>
                 <Button>Agregar usuario</Button>
               </Row>
+               <Row style={{ paddingTop: 20, justifyContent: "center" }}>
+            <img src={logo} alt="Logo" style={{ width: "90%" }} />
+          </Row>
             </Card.Body>
           </Card>
+         
         </Col>
         {/**
            Columna con la tabla de la lista de usuarios
@@ -239,12 +272,49 @@ function Users() {
                                 justifyContent: "space-between",
                               }}
                             >
+                             <MTooltip
+                                  title="Editar usuario"
+                                  placement="top"
+                                >
                               <Button variant="link" size="sm">
                                 <EditNoteIcon />
                               </Button>
-                              <Button variant="link" size="sm">
+                              </MTooltip>
+                               <MTooltip
+                                  title="Eliminar usuario"
+                                  placement="top"
+                                >
+                              <button 
+                              style={{
+                                backgroundColor: "transparent",
+                                color: "rgba(200,0,0,0.8)",
+                                border: "none",
+                              }}
+                              >
                                 <DeleteSweepIcon />
-                              </Button>
+                              </button>
+                                </MTooltip>
+                              {usuario.enabled ? (
+                                <></>
+                              ) : (
+                                <MTooltip
+                                  title="Dar de alta al usuario"
+                                  placement="top"
+                                >
+                                  <button
+                                   style={{
+                                  backgroundColor: "transparent",
+                                  color: "rgb(10,100,20)",
+                                  border: "none",
+                                }}
+                                onClick={() => {
+                                 alert("Dar de alta al usuario");
+                                }}
+                                  >
+                                    <HowToRegIcon />
+                                  </button>
+                                </MTooltip>
+                              )}
                             </div>
                           </td>
                         </tr>
