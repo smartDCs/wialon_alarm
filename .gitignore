@@ -28,3 +28,4 @@ firebase.json
 firestore.rules
 database.rules.json
 firestore.indexes.json
+FirebaseConfig.js
