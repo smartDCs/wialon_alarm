@@ -9,7 +9,7 @@ import {
   Row,
   Col,
   InputGroup,
-
+  Modal,
 } from "react-bootstrap";
 import MTooltip from "@mui/material/Tooltip";
 import EditNoteIcon from "@mui/icons-material/EditNote";
@@ -23,9 +23,19 @@ import { orderByChild, query, ref, onValue } from "firebase/database";
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import logo from "../assets/images/alcaldiah.png";
 function Users() {
+  /**
+   * variables para agregar nuevos usuarios
+   */
+  const [nombre, setNombre] = useState("");
+  const [direccion, setDireccion] = useState("");
+  const [Email, setEmail] = useState("");
+  const [telefono, setTelefono] = useState("");
+  const [alarmStation, setAlarmStation] = useState("");
+const [openModal, setOpenModal] = useState(false);
   const { db1 } = useContext(UserContext);
   const fileInputRef = useRef(null);
   const [usuarios, setUsuarios] = useState([]);
+  const [editUser,setEditUser] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -123,13 +133,20 @@ function Users() {
                     <Form.Control
                       type="text"
                       placeholder="Nombres y apellidos"
+                      value={nombre}
+                      onChange={(e) => setNombre(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
                 <Col lg={12} md={12} sm={12} xs={12}>
                   <Form.Group>
                     <Form.Label>Dirección:</Form.Label>
-                    <Form.Control type="text" placeholder="Av. 123" />
+                    <Form.Control
+                      type="text"
+                      placeholder="Av. 123"
+                      value={direccion}
+                      onChange={(e) => setDireccion(e.target.value)}
+                    />
                   </Form.Group>
                 </Col>
                 <Col lg={12} md={12} sm={12} xs={12}>
@@ -138,6 +155,8 @@ function Users() {
                     <Form.Control
                       type="email"
                       placeholder="ejemplo@ejemplo.com"
+                      value={Email}
+                      onChange={(e) => setEmail(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -146,25 +165,48 @@ function Users() {
                 <Col lg={4} md={12} sm={12} xs={12}>
                   <Form.Group>
                     <Form.Label>Teléfono:</Form.Label>
-                    <Form.Control type="text" placeholder="0987654321" />
+                    <Form.Control
+                      type="text"
+                      placeholder="0987654321"
+                      value={telefono}
+                      onChange={(e) => setTelefono(e.target.value)}
+                    />
                   </Form.Group>
                 </Col>
                 <Col lg={8} md={12} sm={12} xs={12}>
                   <Form.Group>
                     <Form.Label>Estación de alarma:</Form.Label>
-                    <Form.Control type="text" placeholder="LA MERCED" />
+                    <Form.Control
+                      type="text"
+                      placeholder="LA MERCED"
+                      value={alarmStation}
+                      onChange={(e) => setAlarmStation(e.target.value)}
+                    />
                   </Form.Group>
                 </Col>
               </Row>
               <Row style={{ paddingTop: 20 }}>
-                <Button>Agregar usuario</Button>
+                <Button
+                  variant="success"
+                  onClick={() => {
+                    alert(nombre, direccion, Email, telefono, alarmStation);
+                  }}
+                >
+                  Agregar usuario
+                </Button>
               </Row>
-               <Row style={{ paddingTop: 20, justifyContent: "center" }}>
-            <img src={logo} alt="Logo" style={{ width: "90%" }} />
-          </Row>
+
+              <div
+                style={{
+                  paddingTop: 20,
+                  justifyContent: "center",
+                  flexGrow: 1,
+                }}
+              >
+                <img src={logo} alt="Logo" style={{ width: "50%" }} />
+              </div>
             </Card.Body>
           </Card>
-         
         </Col>
         {/**
            Columna con la tabla de la lista de usuarios
@@ -272,28 +314,31 @@ function Users() {
                                 justifyContent: "space-between",
                               }}
                             >
-                             <MTooltip
-                                  title="Editar usuario"
-                                  placement="top"
+                              <MTooltip title="Editar usuario" placement="top">
+                                <Button variant="link" size="sm"
+                                onClick={() => 
+                                {
+                                  setEditUser(usuario);
+                                  setOpenModal(true)
+                                }}
                                 >
-                              <Button variant="link" size="sm">
-                                <EditNoteIcon />
-                              </Button>
+                                  <EditNoteIcon />
+                                </Button>
                               </MTooltip>
-                               <MTooltip
-                                  title="Eliminar usuario"
-                                  placement="top"
-                                >
-                              <button 
-                              style={{
-                                backgroundColor: "transparent",
-                                color: "rgba(200,0,0,0.8)",
-                                border: "none",
-                              }}
+                              <MTooltip
+                                title="Eliminar usuario"
+                                placement="top"
                               >
-                                <DeleteSweepIcon />
-                              </button>
-                                </MTooltip>
+                                <button
+                                  style={{
+                                    backgroundColor: "transparent",
+                                    color: "rgba(200,0,0,0.8)",
+                                    border: "none",
+                                  }}
+                                >
+                                  <DeleteSweepIcon />
+                                </button>
+                              </MTooltip>
                               {usuario.enabled ? (
                                 <></>
                               ) : (
@@ -302,14 +347,14 @@ function Users() {
                                   placement="top"
                                 >
                                   <button
-                                   style={{
-                                  backgroundColor: "transparent",
-                                  color: "rgb(10,100,20)",
-                                  border: "none",
-                                }}
-                                onClick={() => {
-                                 alert("Dar de alta al usuario");
-                                }}
+                                    style={{
+                                      backgroundColor: "transparent",
+                                      color: "rgb(10,100,20)",
+                                      border: "none",
+                                    }}
+                                    onClick={() => {
+                                      alert("Dar de alta al usuario");
+                                    }}
                                   >
                                     <HowToRegIcon />
                                   </button>
@@ -354,6 +399,73 @@ function Users() {
           </Card>
         </Col>
       </Row>
+
+<Modal show={openModal} onHide={() => setOpenModal(false)} size="lg" centered>
+        <Modal.Header closeButton
+        
+        >
+          <Modal.Title>Información</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group>
+            <Form.Label>Nombres:</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Nombres y apellidos"
+              value={editUser.nombres || ""}
+              onChange={(e) => setEditUser({ ...editUser, nombres: e.target.value })}
+            />
+          </Form.Group>
+           <Form.Group>
+            <Form.Label>Teléfono:</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder={editUser.telefono || ""}
+              value={editUser.telefono || ""}
+              onChange={(e) => setEditUser({ ...editUser, telefono: e.target.value })}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Dirección:</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Av. 123"
+              value={editUser.direccion || ""}
+              onChange={(e) => setEditUser({ ...editUser, direccion: e.target.value })}
+            />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>Email:</Form.Label>
+            <Form.Control
+              type="email"
+              placeholder={editUser.email || "usuario@gmail.com"}
+              value={editUser.email || ""}
+              onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
+            />
+          </Form.Group>
+        <Form.Group>
+            <Form.Label>Estación de alarma:</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder={editUser.barrio || "LA MERCED"}
+              value={editUser.barrio || ""}
+              onChange={(e) => setEditUser({ ...editUser, barrio: e.target.value })}
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => {}}>
+            Cerrar
+          </Button>
+          <Button variant="primary" onClick={() => {
+            console.log("Guardar cambios", editUser);
+            setOpenModal(false);
+          }}>
+            Guardar Cambios
+          </Button>
+        </Modal.Footer>
+</Modal>
+
     </Container>
   );
 }

@@ -42,6 +42,14 @@ import { useNavigate } from "react-router-dom";
 import notification from "../assets/audio/notificacion.mp3";
 import swal from "sweetalert";
 import Swal from "sweetalert2";
+import dayjs from "dayjs";
+
+import "dayjs/locale/es";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+
+dayjs.extend(customParseFormat);
+dayjs.locale("es"); // Establece el idioma a español
+
 function Home() {
   const navigate = useNavigate();
   const { db1, userData } = useContext(UserContext);
@@ -390,10 +398,25 @@ function Home() {
           lastEventKeyRef.current = lastKey;
 
           if (lastEvent.atendido === false) {
-            showToast(
-              "warning",
-              `${lastEvent.estacion} ${lastEvent.evento} ${lastEvent.fecha} ${lastEvent.motivo}`
-            );
+            const fechaLimpia = lastEvent.fecha
+              .replace(/\u202f/g, " ")
+              .replace("p.m.", "PM")
+              .replace("a.m.", "AM")
+              .replace("p. m.", "PM")
+              .replace("a. m.", "AM")
+              .replace(/\s+/g, " ");
+            const formato = "D/M/YYYY, h:mm:ss A";
+            const fechaEvento = dayjs(fechaLimpia, formato);
+            const fechaActual = dayjs();
+            const diferencia = fechaActual.diff(fechaEvento, "second");
+            if (Math.abs(diferencia) < 40) {
+              showToast(
+                "warning",
+                `${lastEvent.estacion} ${lastEvent.evento} ${lastEvent.fecha} ${lastEvent.motivo}`
+              );
+            }
+
+            // Reproducir el sonido de notificación
           }
         }
       } else {

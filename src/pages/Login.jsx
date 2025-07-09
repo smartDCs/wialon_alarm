@@ -4,6 +4,7 @@ import {
   Col,
   Container,
   Form,
+  InputGroup,
   Modal,
   Row,
   Spinner,
@@ -15,15 +16,18 @@ import { UserContext } from "../context/UserContext";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import swal from "sweetalert";
 import { doc, getDoc } from "firebase/firestore";
-import { W } from "wialonjs-api";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+
 function Login() {
+ 
   /**
    * Declaramos las entradas de texto para el login
    */
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState({ loading: false, msg: "" });
-
+const [verPassword, setVerPassword] = useState(false);
   /**
    * obtenemos los datos de sesion mediante useContext
    */
@@ -111,24 +115,14 @@ function Login() {
         console.log(error.message);
       });
   };
+ 
   return (
     <Container
       fluid
-      className="d-flex justify-content-center align-items-center"
-      style={{ height: "80vh" }}
+      className="containerImage"
     >
-      <Row
-        style={{
-          width: "100%",
-          height: "100%",
-          display: "flex",
-          justifyContent: "center",
-          alignContent: "center",
-        }}
-      >
-        <Col lg={5} md={5} sm={10} xs={12}>
-          <Card className="bg-dark text-white-50">
-            <Form className="p-4" onSubmit={iniciarSesion}>
+        <Card className="cardLogin">
+            <Form className="p-4 text-white" onSubmit={iniciarSesion}>
               <Form.Group>
                 <Form.Label>Usuario</Form.Label>
                 <Form.Control
@@ -138,37 +132,44 @@ function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-                <Form.Label>Contraseña</Form.Label>
-                <Form.Control
-                  type="password"
+                </Form.Group>
+                <Form.Group>
+ <Form.Label>Contraseña</Form.Label>
+ <InputGroup>
+   <Form.Control
+                 type={verPassword ? "text" : "password"}
                   placeholder="Ingrese su contraseña"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-              </Form.Group>
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <Button
-                  className="btnLogin text-white-50"
-                  onClick={() => {
-                    navigate("/register");
-                  }}
-                >
-                  Registrar
-                </Button>
-                <Button className="btnLogin text-white-50">
-                  Olvidé mi contraseña
-                </Button>
-              </div>
+               <Button
+          variant="outline-secondary"
+          onClick={() => setVerPassword((prev) => !prev)}
+        >
+          {verPassword ? <VisibilityOffIcon/> : <VisibilityIcon/>}
+        </Button>   
+ </InputGroup>
+             
+                </Form.Group>
               <Row>
+              <Col lg={6} md={6} sm={12} xs={12}>
                 <Button className="btnLogin" type="submit">
                   <LoginIcon /> Iniciar sesión
                 </Button>
+                </Col>
+                <Col lg={6} md={6} sm={12} xs={12}>
+                   <Button className="btnLogin "
+                   onClick={() => navigate("/restore_password")}
+                   >
+                  Olvidé mi contraseña
+                </Button>
+                </Col>
               </Row>
             </Form>
           </Card>
-        </Col>
-      </Row>
+
+   
       <Modal show={isLoading.loading}>
         <Modal.Title
           style={{ display: "flex", justifyContent: "center", margin: 20 }}

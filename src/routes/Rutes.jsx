@@ -13,41 +13,44 @@ import Trends from "../pages/Trends";
 import Report from "../reports/Report";
 import Users from "../pages/Users";
 import CreateUser from "../pages/CreateUser";
+import ProtectedRoute from "../components/ProtectedRoute";
+import RestorePassword from "../pages/RestorePassword";
 
 function Rutes() {
-  const { userData, loading } = useContext(UserContext);
+  const { loading } = useContext(UserContext);
 
   if (loading) return <p style={{ textAlign: 'center' }}>Cargando sesión...</p>;
 
-  const isAuth = !!userData.email;
+
 
   return (
     <Routes>
-      <Route path="/" element={isAuth ? <Navigate to="/home" /> : <Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/" element={ <Login />} />
+       <Route path="/restore_password" element={ <RestorePassword />} />
+      <Route path="/register" element={ <ProtectedRoute><Register /></ProtectedRoute>} />
       <Route
         path="/home"
-        element={isAuth ? <Home /> : <Navigate to="/" />}
+        element={<ProtectedRoute> <Home /> </ProtectedRoute>}
       />
       <Route
         path="/report"
-        element={isAuth ? <Report /> : <Navigate to="/" />}
+        element={<ProtectedRoute> <Report /> </ProtectedRoute>}
       />
       <Route
         path="/profile"
-        element={isAuth ? <Profile /> : <Navigate to="/" />}
+        element={<ProtectedRoute> <Profile /> </ProtectedRoute>}
       />
    
        <Route
         path="/historial"
-        element={isAuth ? <Historial /> : <Navigate to="/" />}
+        element={<ProtectedRoute> <Historial /> </ProtectedRoute>}
       />
       <Route path="*" element={<Navigate to="/" />} />
-      <Route path="/reporte_trabajo" element={isAuth ?<OrdenTrabajo/> : <Navigate to="/" />}/>
-      <Route path="/trends" element={isAuth ?<Trends/> : <Navigate to="/" />}/>
-      <Route path="/setup" element={isAuth ?<Setup/> : <Navigate to="/" />}/>
-       <Route path="/users" element={isAuth ?<Users/> : <Navigate to="/" />}/>
-        <Route path="/createUser" element={isAuth ?<CreateUser/> : <Navigate to="/" />}/>
+      <Route path="/reporte_trabajo" element={<ProtectedRoute><OrdenTrabajo/></ProtectedRoute>}/>
+      <Route path="/trends" element={<ProtectedRoute><Trends/> </ProtectedRoute>}/>
+      <Route path="/setup" element={<ProtectedRoute><Setup/> </ProtectedRoute>}/>
+       <Route path="/users" element={<ProtectedRoute><Users/> </ProtectedRoute>}/>
+        <Route path="/createUser" element={<ProtectedRoute><CreateUser/></ProtectedRoute>}/>
     </Routes>
   );
 }

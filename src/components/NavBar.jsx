@@ -11,7 +11,7 @@ import { useNavigate } from "react-router-dom";
 import SettingsIcon from "@mui/icons-material/Settings";
 import { signOut } from "firebase/auth";
 import logo from "../assets/images/logo3.png";
-
+import logoseguridad from "../assets/images/logoseguridadblanco.png";
 import TimelineSharpIcon from "@mui/icons-material/TimelineSharp";
 import AccountBoxIcon from "@mui/icons-material/AccountBox";
 import WarningAmberSharpIcon from "@mui/icons-material/WarningAmberSharp";
@@ -74,7 +74,7 @@ function NavBar() {
       expand="lg"
       bg="dark"
       data-bs-theme="dark"
-      className="bg-body-tertiary "
+      className="navbarContainer align-items-center"
       sticky="top"
     >
       <Container fluid>
@@ -83,9 +83,10 @@ function NavBar() {
             display: "flex",
             justifyContent: "space-between",
             width: "100%",
+           
           }}
         >
-          <Navbar.Toggle aria-controls="basic-navbar-nav" className="p-0 m-2" />
+       
           <Navbar.Brand
             style={{
               display: "flex",
@@ -98,14 +99,14 @@ function NavBar() {
             }}
           >
             <span>
-              <div className="divLogo">
-                <label className="ps-2">telegrafia</label>
-              </div>
+         <img src={logoseguridad} style={{maxHeight:"32px", maxWidth:"120px"}} />
+          
             </span>
             <span>
-              <img src={logo} height={32} />
+              <img src={logo} style={{maxHeight:"32px", maxWidth:"120px"}} />
             </span>
           </Navbar.Brand>
+             <Navbar.Toggle aria-controls="basic-navbar-nav" className="p-0 m-2" />
         </div>
 
         <Navbar.Collapse id="basic-navbar-nav" className="justify-content-end">

@@ -5,6 +5,7 @@ import {
   Col,
   Container,
   Form,
+  InputGroup,
   Row,
   Table,
 } from "react-bootstrap";
@@ -12,6 +13,7 @@ import SaveIcon from "@mui/icons-material/Save";
 import dayjs from "dayjs";
 import EditNoteIcon from "@mui/icons-material/EditNote";
 import DeleteSweepIcon from "@mui/icons-material/DeleteSweep";
+//import { create } from "@mui/material/styles/createTransitions";
 function CreateUser() {
   const [nombre, setNombre] = useState("");
   const [cedula, setCedula] = useState("");
@@ -19,6 +21,20 @@ function CreateUser() {
   const [direccion, setDireccion] = useState("");
   const [email, setEmail] = useState("");
   const [rol, setRol] = useState("");
+
+const guardarUser = (e) => {
+  e.preventDefault();
+    // Aquí puedes agregar la lógica para guardar el usuario
+                  console.log("Usuario guardado:", {
+                    nombre,
+                    cedula,
+                    telefono,
+                    direccion,
+                    email,
+                    rol,
+                  });
+}
+
   return (
     <Container
       fluid
@@ -29,89 +45,107 @@ function CreateUser() {
         height: "100%",
       }}
     >
-      <Card style={{ padding: 20, flexGrow: 1 }}>
-        <Card.Title>
+      <Card style={{ padding: 5, flexGrow: 1 }}>
+        <Card.Title style={{padding:0, margin:0, display:"flex", fontSize:"1rem"}}>
           <label>Administración de usuarios</label>
         </Card.Title>
         <Card.Body style={{ height: "100%" }}>
           <Row
             style={{
-              backgroundColor: "rgb(50,50,50)",
-              padding: 10,
+              paddingBottom: 10,
               borderRadius: 5,
-              color:"white"
+            fontSize: "0.8rem",
+              border: "1px solid #ccc",
             }}
            
           >
             <Row>
               <Col lg={4} md={4} sm={12} xs={12}>
-                <Form.Group>
-                  <Form.Label>Nombres:</Form.Label>
-                  <Form.Control
+               <InputGroup className="mt-3">
+        <InputGroup.Text id="basic-addon1"
+        size="sm"
+        >Nombres:</InputGroup.Text>
+         <Form.Control
                     type="text"
+                     size="sm"
                     required
                     value={nombre}
                     onChange={(e) => setNombre(e.target.value)}
                     placeholder="Nombres y apellidos"
                   />
-                </Form.Group>
+      </InputGroup>
+               
               </Col>
               <Col lg={2} md={2} sm={12} xs={12}>
-                <Form.Group>
-                  <Form.Label>C.C.:</Form.Label>
+                <InputGroup className="mt-3">
+                  <InputGroup.Text
+                  size="sm"
+                  >C.C.:</InputGroup.Text>
                   <Form.Control
+                  size="sm"
                     type="text"
                     required
                     value={cedula}
                     onChange={(e) => setCedula(e.target.value)}
                     placeholder="Cédula de identidad"
                   />
-                </Form.Group>
+                </InputGroup>
               </Col>
               <Col lg={2} md={2} sm={12} xs={12}>
-                <Form.Group>
-                  <Form.Label>Teléfono:</Form.Label>
+                <InputGroup className="mt-3">
+                  <InputGroup.Text
+                  size="sm"
+                  >Teléfono:</InputGroup.Text>
                   <Form.Control
                     type="text"
+                    
+                    size="sm"
                     required
                     value={telefono}
                     onChange={(e) => setTelefono(e.target.value)}
                     placeholder="Teléfono / Celular"
                   />
-                </Form.Group>
+                </InputGroup>
               </Col>
               <Col lg={4} md={4} sm={12} xs={12}>
-                <Form.Group>
-                  <Form.Label>Dirección</Form.Label>
+                <InputGroup className="mt-3">
+                  <InputGroup.Text
+                  size="sm"
+                  >Dirección:</InputGroup.Text>
                   <Form.Control
                     type="text"
                     required
+                    size="sm"
                     value={direccion}
                     onChange={(e) => setDireccion(e.target.value)}
                     placeholder="Dirección"
                   />
-                </Form.Group>
+                </InputGroup>
               </Col>
             </Row>
             <Row style={{ paddingBottom: 10 }}>
               <Col lg={4} md={4} sm={12} xs={12}>
-                <Form.Group>
-                  <Form.Label>Email:</Form.Label>
+                <InputGroup className="mt-3">
+                  <InputGroup.Text size="sm">Email:</InputGroup.Text>
                   <Form.Control
                     type="email"
                     required
+                    size="sm"
+
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Email"
                   />
-                </Form.Group>
+                </InputGroup>
               </Col>
               <Col lg={2} md={2} sm={12} xs={12}>
-                <Form.Group>
-                  <Form.Label>Rol:</Form.Label>
+                <InputGroup className="mt-3">
+                  <InputGroup.Text>Rol:</InputGroup.Text>
                   <Form.Select
                     type="text"
                     required
+                    size="sm"
+
                     value={rol}
                     onChange={(e) => setRol(e.target.value)}
                   >
@@ -120,7 +154,7 @@ function CreateUser() {
                     <option value="2">Supervisor</option>
                     <option value="3">Operador</option>
                   </Form.Select>
-                </Form.Group>
+                </InputGroup>
               </Col>
               <Col
                 lg={2}
@@ -129,22 +163,28 @@ function CreateUser() {
                 xs={12}
                 style={{
                   display: "flex",
-                  alignItems: "self-end",
-                  paddingTop: 10,
+                  alignItems: "center",
+                  paddingTop: 0,
+                  
                 }}
               >
-                <Button variant="success">
-                  {" "}
+                <Button variant="outline-success" size="sm" className="mt-3"
+                onClick={(e) => {
+                guardarUser(e);
+                }}
+                >
                   <SaveIcon /> Guardar
                 </Button>
               </Col>
             </Row>
           </Row>
+          {/**
+          Tabla para mostrar los usuarios registrados
+           */}
           <Row style={{ paddingTop: 10, flexGrow: 1 }}>
             <Table responsive size="sm" hover>
               <thead className="tableHead">
                 <tr>
-                  {" "}
                   <th colSpan={8}>Usuarios registrados</th>
                 </tr>
                 <tr>
@@ -158,79 +198,23 @@ function CreateUser() {
                   <th className="tableHeaderUser">Acciones</th>
                 </tr>
               </thead>
+              {/**
+              muestra los datos extraidos de la base de datos
+               */}
               <tbody>
-                <tr>
-                  <td className="tableRow">1</td>
-                  <td className="tableRow">Juan Perez</td>
-                  <td className="tableRow">1234567890</td>
-                  <td className="tableRow">0987654321</td>
-                  <td className="tableRow">Av. 1234 y calle B</td>
-                  <td className="tableRow">jperez@telegrafia.com</td>
-                  <td className="tableRow">Administrador</td>
-                  <td className="tableRow">
-                    <div
-                      style={{
-                       display:"flex",
-                        justifyContent:"center"
-                      }}
+                    <tr
+                
                     >
-                      <Button variant="link" size="sm">
-                        <EditNoteIcon />
-                      </Button>
-                      <Button variant="link" size="sm" style={{ color: "red" }}>
-                        <DeleteSweepIcon />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                   <tr>
-                  <td className="tableRow">2</td>
-                  <td className="tableRow">Juan Perez</td>
-                  <td className="tableRow">1234567890</td>
-                  <td className="tableRow">0987654321</td>
-                  <td className="tableRow">Av. 1234 y calle B</td>
-                  <td className="tableRow">jperez@telegrafia.com</td>
-                  <td className="tableRow">Supervisor</td>
-                  <td className="tableRow">
-                    <div
+                      <td
+                      colSpan={8}
                       style={{
-                      display:"flex",
-                        justifyContent:"center"
+                        textAlign: "center",
+                        fontStyle: "italic",
+                        color: "grey",
                       }}
-                    >
-                      <Button variant="link" size="sm">
-                        <EditNoteIcon />
-                      </Button>
-                      <Button variant="link" size="sm" style={{ color: "red" }}>
-                        <DeleteSweepIcon />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-                   <tr>
-                  <td className="tableRow">3</td>
-                  <td className="tableRow">Juan Perez</td>
-                  <td className="tableRow">1234567890</td>
-                  <td className="tableRow">0987654321</td>
-                  <td className="tableRow">Av. 1234 y calle B</td>
-                  <td className="tableRow">jperez@telegrafia.com</td>
-                  <td className="tableRow">Operador</td>
-                  <td className="tableRow">
-                    <div
-                      style={{
-                    display:"flex",
-                        justifyContent:"center"
-                      }}
-                    >
-                      <Button variant="link" size="sm">
-                        <EditNoteIcon />
-                      </Button>
-                      <Button variant="link" size="sm" style={{ color: "red" }}>
-                        <DeleteSweepIcon />
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
+                      > No se encotró ningun registro</td>
+                    </tr>       
+               
               </tbody>
               <tfoot>
                 <tr>
@@ -244,7 +228,7 @@ function CreateUser() {
                         fontSize:"0.8rem"
                       }}
                     >
-                      DomotizArq © {dayjs().year()}
+                      NexusEmbed © {dayjs().year()}
                     </div>
                   </td>
                 </tr>

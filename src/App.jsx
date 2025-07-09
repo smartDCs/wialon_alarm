@@ -2,7 +2,7 @@ import { BrowserRouter } from "react-router-dom";
 import "./App.css";
 import NavBar from "./components/NavBar";
 import Rutes from "./routes/Rutes";
-
+import dayjs from "dayjs";
 import DataState from "./context/DataState";
 import { initializeApp } from "firebase/app";
 import { firebaseConfig } from "./firebase/FirebaseConfig";
@@ -14,7 +14,7 @@ import { getDatabase } from "firebase/database";
 import "react-toastify/dist/ReactToastify.css";
 import OTData from "./context/OTData";
 import ReportData from "./context/ReportData";
-
+import "./assets/fuentes/fonts.css";
 function App() {
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
@@ -30,6 +30,23 @@ function App() {
             <div className="workArea">
             <Rutes />
             </div>
+              <div
+               style={{
+            color: "black",
+            display: "flex",
+            position: "absolute",
+            bottom: 5,
+            right: 5,
+            fontStyle: "italic",
+            fontSize: "0.8rem",
+          }}
+              >
+        <label
+         
+        >
+          NexusEmbed © {dayjs().year()}
+        </label>
+      </div>
           </BrowserRouter>
           <ToastContainer position="top-right" autoClose={3000} />
           </ReportData>
